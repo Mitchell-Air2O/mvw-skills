@@ -1,0 +1,17 @@
+{
+  "description": "After a foreground subagent returns, report its context and the session's own context.",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/context_report.py\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
