@@ -126,7 +126,7 @@ On yes, do these steps in order. Stop at the first step that fails, and report i
 - Your session ID is `${CLAUDE_SESSION_ID}`.
 - Set the session title: in the Claude desktop app, `set_session_title` with
   `session_id: "self"`; in the CLI, `/rename`.
-- The plan file: in the Claude desktop app, a hook refuses `Edit` and `Write` on a file
+- The plan file: in the Claude desktop app, a hook refuses `Edit` on a file
   in the main checkout from a worktree session. Update the plan with a short Python
   script through `Bash`. The script replaces each exact text one time and stops if the
   text is not found exactly one time.
