@@ -1,0 +1,87 @@
+# mvw-skills
+
+Mitchell Van Wagoner's agent skills. This repository is a Claude Code plugin marketplace.
+Each plugin is a folder in `plugins/`. Each skill is one `SKILL.md` in the Agent Skills
+format, so Codex and Gemini CLI can read it too.
+
+## Plugin `workflow`
+
+A change goes through four roles:
+
+| Role | Kind | Does |
+|---|---|---|
+| `planner` | skill, `/planner` | Interviews the owner (the grill), sizes the stages, writes the plan in the main checkout, then hands off to a builder. |
+| `builder` | skill, `/builder <plan path>` | Runs an approved plan in a fresh session. Starts one implementer per stage, sets its model and effort, reviews each diff, commits, keeps the plan current, and closes out. |
+| `implementer` | agent | Makes one stage from a brief and runs the build. It does not commit. |
+| `reviewer` | skill `/reviewer`, and agent | Reviews all the work of a plan, runs a retro on its sessions, then asks if the work is ready to close out. |
+
+The long form `/workflow:planner` applies only when another command has the short name.
+
+The skills read the project values from the project instructions (`AGENTS.md`,
+`CLAUDE.md`): the build command, the review checklist, the plan folder, the memory
+folder, the branch rule and the merge procedure.
+
+## Install
+
+### Claude Code
+
+Claude Code v2.1.292 or later is necessary. The builder sets the effort of each
+implementer call, and older versions ignore it. The builder stops on an older version.
+Run `claude update` first.
+
+For one user:
+
+```bash
+claude plugin marketplace add Mitchell-Air2O/mvw-skills
+claude plugin install workflow@mvw-skills
+```
+
+For every developer of a project, add this to the project's `.claude/settings.json`:
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "mvw-skills": {
+      "source": { "source": "github", "repo": "Mitchell-Air2O/mvw-skills" }
+    }
+  },
+  "enabledPlugins": { "workflow@mvw-skills": true }
+}
+```
+
+Claude Code offers the marketplace after the developer trusts the folder.
+
+Update:
+
+```bash
+claude plugin marketplace update mvw-skills
+```
+
+### Codex and Gemini CLI
+
+Both tools read skills from `~/.agents/skills/`. Clone this repository one time, then
+link each skill folder there:
+
+```bash
+git clone https://github.com/Mitchell-Air2O/mvw-skills.git ~/mvw-skills
+mkdir -p ~/.agents/skills
+ln -s ~/mvw-skills/plugins/workflow/skills/planner ~/.agents/skills/planner
+ln -s ~/mvw-skills/plugins/workflow/skills/builder ~/.agents/skills/builder
+ln -s ~/mvw-skills/plugins/workflow/skills/reviewer ~/.agents/skills/reviewer
+```
+
+Update: `git pull` in the clone. The links then point to the new text.
+
+The agents, the hook and the scripts are Claude Code only. In another tool, the builder
+makes each stage itself or in that tool's own subagent. Assumption: Codex follows a
+linked skill folder. This is not yet tested.
+
+## Credits
+
+The grill in `planner` adapts the `grilling` skill, and the retro in `reviewer` adapts
+the `retro` skill, from [mattpocock/skills](https://github.com/mattpocock/skills)
+(MIT, copyright Matt Pocock). See `LICENSE`.
+
+## License
+
+MIT. See `LICENSE`.

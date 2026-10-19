@@ -1,0 +1,16 @@
+{
+  "name": "mvw-skills",
+  "owner": {
+    "name": "Mitchell Van Wagoner"
+  },
+  "metadata": {
+    "description": "Mitchell Van Wagoner's agent skills."
+  },
+  "plugins": [
+    {
+      "name": "workflow",
+      "source": "./plugins/workflow",
+      "description": "Plan, build and review a change: planner, builder, implementer and reviewer."
+    }
+  ]
+}

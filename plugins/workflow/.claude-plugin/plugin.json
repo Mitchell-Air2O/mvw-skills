@@ -1,0 +1,10 @@
+{
+  "name": "workflow",
+  "version": "0.1.0",
+  "description": "Plan, build and review a change: planner, builder, implementer and reviewer.",
+  "author": {
+    "name": "Mitchell Van Wagoner"
+  },
+  "repository": "https://github.com/Mitchell-Air2O/mvw-skills",
+  "license": "MIT"
+}
