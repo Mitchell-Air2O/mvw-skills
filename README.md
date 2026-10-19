@@ -49,7 +49,19 @@ For every developer of a project, add this to the project's `.claude/settings.js
 }
 ```
 
-Claude Code offers the marketplace after the developer trusts the folder.
+Claude Code offers the marketplace after the developer trusts the folder. Each developer
+then installs the plugin one time on each PC, in the project folder:
+
+```bash
+claude plugin install workflow@mvw-skills --scope project
+```
+
+Without this step, the settings download the plugin but load no skill in `claude -p`. A
+session that started before the install does not see the plugin's agents. Start a new
+session after the install.
+
+The context hook runs `python3`. Put `python3` on PATH. On Windows, a python.org install
+can lack `python3`. Without `python3`, the hook fails and adds no line.
 
 Update:
 

@@ -75,8 +75,9 @@ One implementer subagent makes each stage, in one run.
 
 ## 4. Pick the name
 
-Pick the branch name by the project's naming rule. The worktree and the sessions of the
-plan use the same name.
+Pick the branch name by the project's naming rule. The sessions of the plan use the same
+name as their title. The worktree folder name can differ, because a tool can name the
+worktree.
 
 - Write the branch name in the plan's Status line.
 - Set your session title to the branch name. In a tool that cannot rename a session,
@@ -113,11 +114,15 @@ context. The owner's start of that session is the "go". Your session then ends.
 ## In Claude Code
 
 - Your session ID is `${CLAUDE_SESSION_ID}`. Write it in the `Sessions:` line.
-- Set the session title: in the Claude desktop app, `set_session_title`; in the CLI,
-  `/rename`.
+- Set the session title: in the Claude desktop app, `set_session_title` with
+  `session_id: "self"`; in the CLI, `/rename`.
 - For a broad search, use the `Agent` tool with `subagent_type: "Explore"`,
   `model: "haiku"` or `model: "sonnet"`, and `run_in_background: true`.
-- The hand-off: in the Claude desktop app, propose a new session as a card
-  (`start_session`, `context: "fresh"`). Its prompt is `/builder <full plan path>`. The
-  owner's click starts it. In the CLI, tell the owner to start a new session and run
-  `/builder <plan folder>/<NAME>_PLAN.md`.
+- The hand-off: in the Claude desktop app, propose a new session as a card. Use
+  `start_session` with `initiation: "own_initiative"`, `context: "fresh"`,
+  `title: <branch name>`, `prompt: "/builder <full plan path>"`, `background` (the goal
+  of the plan and its full path, at least 80 characters), `use_worktree: true` and
+  `branch_name: <branch name>`. The app adds a prefix and a suffix to the branch name.
+  The builder creates the plan's branch in that worktree. The owner's click starts the
+  session. In the CLI, tell the owner to start a new session and run
+  `/builder <full plan path>`.

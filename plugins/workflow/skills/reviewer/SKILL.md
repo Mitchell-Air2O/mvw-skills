@@ -19,7 +19,9 @@ close-out question, in the session that talks to the owner.
    project has none, review for correctness, for the project instructions and for the
    plan's decisions.
 3. Get the full diff of the work: the branch against its merge base with the base
-   branch.
+   branch. If the plan spans more than one repository, or has commits directly on a base
+   branch, take each commit range from the stage status lines of the plan. Review each
+   range.
 4. Read each changed file around each change. Verify each finding with a tool before you
    report it. Label a finding that you cannot verify as an assumption.
 
@@ -79,6 +81,13 @@ does the close-out steps of the `builder` skill.
   `subagent_type: "workflow:reviewer"`, `model: "opus"`, `effort: "high"` and
   `run_in_background: false`. Give it the plan path, the branch, the base branch and the
   path of this file: `${CLAUDE_SKILL_DIR}/SKILL.md`.
-- The digest: `python "${CLAUDE_PLUGIN_ROOT}/scripts/session_digest.py"` with the
+- If the `workflow:reviewer` agent type is not found, the session started before the
+  plugin was installed. Use `subagent_type: "general-purpose"` with the same `model`,
+  `effort` and `run_in_background`. Put the text of
+  `${CLAUDE_PLUGIN_ROOT}/agents/reviewer.md` in the prompt. That agent can edit files,
+  so the prompt states the read-only limit. Tell the owner to run
+  `claude plugin install workflow@mvw-skills --scope project` and to start the next
+  session after that.
+- The digest: `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/session_digest.py"` with the
   session IDs of the `Sessions:` line.
 - Run section 3 in the session that talks to the owner.

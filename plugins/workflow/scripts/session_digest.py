@@ -19,8 +19,8 @@ For each session, the digest gives:
 
 Context is the input tokens of one request: input_tokens plus
 cache_read_input_tokens plus cache_creation_input_tokens. context_report.py
-uses the same definition. A subagent whose last context is above the target
-is marked "over".
+uses the same definition. An implementer whose last context is above the
+target is marked "over". The target applies only to implementers.
 """
 
 import argparse
@@ -248,7 +248,8 @@ def digest_session(projects_dir, session_id, target):
             last = "-"
             if chain.contexts:
                 last = kilo(chain.contexts[-1])
-                if chain.contexts[-1] > target:
+                is_implementer = meta.get("agentType", "").endswith("implementer")
+                if is_implementer and chain.contexts[-1] > target:
                     last += " over"
             model = chain.models.most_common(1)[0][0] if chain.models else "-"
             lines.append(

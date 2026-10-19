@@ -20,8 +20,11 @@ design and the review. The implementer makes the edit and the build.
 4. Add your session ID and your role to the plan's `Sessions:` line.
 5. Set your session title to the branch name in the plan's Status line. In a tool that
    cannot rename a session, skip this step.
-6. Work on that branch, in a worktree of the same name. If neither exists, create them by
-   the project's branch rule.
+6. Work on that branch. If neither the branch nor a worktree exists, create them by the
+   project's branch rule. If your session already has a worktree on another branch (a
+   tool can name the worktree and its branch), create the plan's branch in that worktree
+   by the project's branch rule. Then delete the other branch if it holds no commits of
+   its own. The worktree folder name can differ from the branch name.
 7. Check the tool version. See "In Claude Code".
 
 ## 2. The stage loop
@@ -101,12 +104,14 @@ After the last stage:
 
 On yes, do these steps in order. Stop at the first step that fails, and report it.
 
-1. Archive the plan. On the last branch, add the plan as
-   `<plan folder>/archive/<NAME>_PLAN.md`. Commit it. Compare the archived copy with the
-   top-level copy byte for byte. If they are equal, delete the top-level copy. The paths
-   differ, so the merge has no conflict.
+1. Archive the plan by the project's plan rules. Do every step that those rules give, for
+   example a list of open hardware checks or an index of plans. On the last branch, add
+   the plan as `<plan folder>/archive/<NAME>_PLAN.md`. Commit it. Compare the archived
+   copy with the top-level copy byte for byte. If they are equal, delete the top-level
+   copy. The paths differ, so the merge has no conflict.
 2. Publish by the project's merge procedure.
-3. Remove the worktree. Delete the branch, local and on origin.
+3. Delete the branch, local and on origin. Remove the worktree, except where step 4
+   removes it (see "In Claude Code").
 4. Archive the sessions in the plan's `Sessions:` line. Archive your own session last.
 
 ## In Claude Code
@@ -119,18 +124,33 @@ On yes, do these steps in order. Stop at the first step that fails, and report i
 - If the environment variable `CLAUDE_CODE_EFFORT_LEVEL` is set, it overrides the
   `effort` parameter. Stop and report it.
 - Your session ID is `${CLAUDE_SESSION_ID}`.
-- Set the session title: in the Claude desktop app, `set_session_title`; in the CLI,
-  `/rename`.
+- Set the session title: in the Claude desktop app, `set_session_title` with
+  `session_id: "self"`; in the CLI, `/rename`.
+- The plan file: in the Claude desktop app, a hook refuses `Edit` and `Write` on a file
+  in the main checkout from a worktree session. Update the plan with a short Python
+  script through `Bash`. The script replaces each exact text one time and stops if the
+  text is not found exactly one time.
 - Start the implementer with the `Agent` tool: `subagent_type: "workflow:implementer"`,
   `model` (`sonnet` or `opus`), `effort` (`medium`, `high` or `xhigh`), and
   `run_in_background: false`. A foreground call returns the token count of the
   implementer.
+- If the `workflow:implementer` agent type is not found, the session started before the
+  plugin was installed. Use `subagent_type: "general-purpose"` with the same `model`,
+  `effort` and `run_in_background`. Put the text of
+  `${CLAUDE_PLUGIN_ROOT}/agents/implementer.md` in the prompt before the brief. Tell the
+  owner to run `claude plugin install workflow@mvw-skills --scope project` and to start
+  the next session after that.
 - The plugin's hook adds a line after each implementer returns: the implementer's tokens
   and your own context. Use the first for section 4 and the retro. Use the second for
   section 5.
 - Resume an implementer with `SendMessage` to its agent ID. Stop one with `TaskStop`.
-- The builder hand-off: in the Claude desktop app, propose a new session as a card
-  (`start_session`, `context: "fresh"`) with the prompt `/builder <full plan path>`. In
-  the CLI, tell the owner to start a new session and run that command.
-- Archive a session with `archive_session` in the Claude desktop app. The CLI has no
-  such step; skip it.
+- The builder hand-off: in the Claude desktop app, propose a new session as a card. Use
+  `start_session` with `initiation: "own_initiative"`, `context: "fresh"`,
+  `title: <branch name>`, `prompt: "/builder <full plan path>"`, `background` (the goal
+  of the plan, its full path and the stage to resume, at least 80 characters),
+  `use_worktree: true` and `branch_name: <branch name>`. The app adds a prefix and a
+  suffix to the branch name. The new builder creates the plan's branch by section 1. In
+  the CLI, tell the owner to start a new session and run `/builder <full plan path>`.
+- Archive a session with `archive_session` in the Claude desktop app. It also removes the
+  session's worktree, so close-out step 3 does not remove it. The CLI has no such step;
+  skip it, and remove the worktree in step 3.
