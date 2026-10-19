@@ -60,15 +60,17 @@ claude plugin marketplace update mvw-skills
 ### Codex and Gemini CLI
 
 Both tools read skills from `~/.agents/skills/`. Clone this repository one time, then
-link each skill folder there:
+run the link script:
 
 ```bash
 git clone https://github.com/Mitchell-Air2O/mvw-skills.git ~/mvw-skills
-mkdir -p ~/.agents/skills
-ln -s ~/mvw-skills/plugins/workflow/skills/planner ~/.agents/skills/planner
-ln -s ~/mvw-skills/plugins/workflow/skills/builder ~/.agents/skills/builder
-ln -s ~/mvw-skills/plugins/workflow/skills/reviewer ~/.agents/skills/reviewer
+python3 ~/mvw-skills/scripts/link_skills.py
 ```
+
+The script links each skill folder into `~/.agents/skills/`. On Windows the link is a
+directory junction, which needs no admin rights. Elsewhere it is a symlink. The script
+reports each link as `made`, `present` or `skipped`. It never replaces an entry that is
+not a link to this clone. Run it again after a pull that adds a skill.
 
 Update: `git pull` in the clone. The links then point to the new text.
 
