@@ -48,8 +48,8 @@ You propose changes to the agent's environment, so that later sessions do better
      not a line of prose.
    - **Review rules**: the review missed a mistake. Add, clarify or remove a rule in the
      project's review checklist. Keep prose rules for judgment calls.
-   - **Stage size**: an implementer overran the sizing target, or a stage needed a fresh
-     implementer. Say what made the stage too large.
+   - **Stage size**: a worker overran the sizing target, or a stage needed a fresh
+     worker. Say what made the stage too large.
    - **Model and effort**: a stage failed at its row of the table, or ran at a higher row
      than it needed.
    - **Tool economy**: a tool call cost many tokens and a cheaper call does the same job.

@@ -63,14 +63,14 @@ understanding.
 
 ## 3. Size the stages
 
-One implementer subagent makes each stage, in one run.
+One worker subagent makes each stage, in one run.
 
-- Size each stage so that the implementer ends its run at about 100k tokens of context.
+- Size each stage so that the worker ends its run at about 100k tokens of context.
   The target is for sizing. It is not a cutoff.
 - A stage that splits cleanly into two is two stages. The builder never splits a stage.
 - Write prose edits and short edits as a builder stage ("Who: the builder"), when a brief
   would be as long as the edit.
-- For each implementer stage, pick the model and the effort from the table in the
+- For each worker stage, pick the model and the effort from the table in the
   builder skill. Write them in the stage's "Who" line.
 
 ## 4. Pick the name

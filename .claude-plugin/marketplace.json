@@ -10,7 +10,7 @@
     {
       "name": "workflow",
       "source": "./plugins/workflow",
-      "description": "Plan, build and review a change: planner, builder, implementer and reviewer."
+      "description": "Plan, build and review a change: planner, builder, worker and reviewer."
     }
   ]
 }

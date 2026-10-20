@@ -1,13 +1,13 @@
 ---
 name: builder
-description: Run an approved plan stage by stage. Start one implementer subagent per stage, review each diff, commit, and keep the plan current. Use when the owner runs /builder with a plan path, or starts the builder card from a planner session.
+description: Run an approved plan stage by stage. Start one worker subagent per stage, review each diff, commit, and keep the plan current. Use when the owner runs /builder with a plan path, or starts the builder card from a planner session.
 ---
 
 # Builder
 
 You run an approved plan in a fresh session. The argument is the plan path. You start one
-implementer per stage, review each diff, commit, and keep the plan current. You keep the
-design and the review. The implementer makes the edit and the build.
+worker per stage, review each diff, commit, and keep the plan current. You keep the
+design and the review. The worker makes the edit and the build.
 
 ## 1. Start
 
@@ -48,26 +48,26 @@ For each stage:
    - the helpers to reuse or to add;
    - what done looks like;
    - the build to run.
-3. Pick the model and the effort from the table (section 3). Start the implementer in the
+3. Pick the model and the effort from the table (section 3). Start the worker in the
    foreground, with both values set on the call.
-4. Read the implementer's report. The owner talks only to you, never to an implementer.
+4. Read the worker's report. The owner talks only to you, never to a worker.
    - A question: answer it from the plan if the plan settles it. If not, ask the owner
-     yourself (the first stop rule). Then resume the implementer with the answer by
+     yourself (the first stop rule). Then resume the worker with the answer by
      section 4, or start a fresh one if the answer changes the design.
    - A finding outside the brief: write it in the plan under the stage, one line each.
      The owner and the reviewer read it there.
 5. Read the full diff. Review it by the project's review checklist.
-6. Fix a small defect yourself, or resume the implementer by section 4. Build again.
+6. Fix a small defect yourself, or resume the worker by section 4. Build again.
 7. Commit by the project's commit rule.
 8. Mark the stage done in the plan with the date. Write the new `**Next step:**`.
 
-A stage overruns when its implementer ends far above the sizing target. Finish the stage
-with a fresh implementer. Never split the stage. Write the overrun in the plan, so that
+A stage overruns when its worker ends far above the sizing target. Finish the stage
+with a fresh worker. Never split the stage. Write the overrun in the plan, so that
 the retro reports the stage as too large.
 
 ## 3. Model and effort
 
-Set both on each implementer call. Never leave the effort to the default.
+Set both on each worker call. Never leave the effort to the default.
 
 | The stage | Model | Effort |
 |---|---|---|
@@ -80,12 +80,12 @@ The plan's "Who" line gives the row. A failed run moves the stage one row down.
 
 ## 4. Resume or fresh
 
-- Resume an implementer only for a small fix to its own stage or the answer to its
+- Resume a worker only for a small fix to its own stage or the answer to its
   question, and only when it ended under the sizing target.
-- Never send a design change into a running implementer. Stop it. Start a fresh one with
+- Never send a design change into a running worker. Stop it. Start a fresh one with
   a revised brief.
-- The implementer has a turn limit. It is a checkpoint, not a context cutoff. At the
-  limit, control returns to you. Resume the implementer by the first rule, or start a
+- The worker has a turn limit. It is a checkpoint, not a context cutoff. At the
+  limit, control returns to you. Resume the worker by the first rule, or start a
   fresh one with a brief that names the work left.
 
 ## 5. Your own context
@@ -135,20 +135,20 @@ On yes, do these steps in order. Stop at the first step that fails, and report i
   in the main checkout from a worktree session. Update the plan with a short Python
   script through `Bash`. The script replaces each exact text one time and stops if the
   text is not found exactly one time.
-- Start the implementer with the `Agent` tool: `subagent_type: "workflow:implementer"`,
+- Start the worker with the `Agent` tool: `subagent_type: "workflow:worker"`,
   `model` (`sonnet` or `opus`), `effort` (`medium`, `high` or `xhigh`), and
   `run_in_background: false`. A foreground call returns the token count of the
-  implementer.
-- If the `workflow:implementer` agent type is not found, the session started before the
+  worker.
+- If the `workflow:worker` agent type is not found, the session started before the
   plugin was installed. Use `subagent_type: "general-purpose"` with the same `model`,
   `effort` and `run_in_background`. Put the text of
-  `${CLAUDE_PLUGIN_ROOT}/agents/implementer.md` in the prompt before the brief. Tell the
+  `${CLAUDE_PLUGIN_ROOT}/agents/worker.md` in the prompt before the brief. Tell the
   owner to run `claude plugin install workflow@mvw-skills --scope project` and to start
   the next session after that.
-- The plugin's hook adds a line after each implementer returns: the implementer's tokens
+- The plugin's hook adds a line after each worker returns: the worker's tokens
   and your own context. Use the first for section 4 and the retro. Use the second for
   section 5.
-- Resume an implementer with `SendMessage` to its agent ID. Stop one with `TaskStop`.
+- Resume a worker with `SendMessage` to its agent ID. Stop one with `TaskStop`.
 - The builder hand-off: in the Claude desktop app, propose a new session as a card. Use
   `start_session` with `initiation: "own_initiative"`, `context: "fresh"`,
   `title: <branch name>`, `prompt: "/builder <full plan path>"`, `background` (the goal

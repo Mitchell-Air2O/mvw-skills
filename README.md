@@ -11,8 +11,8 @@ A change goes through four roles:
 | Role | Kind | Does |
 |---|---|---|
 | `planner` | skill, `/planner` | Interviews the owner (the grill), sizes the stages, writes the plan in the main checkout, then hands off to a builder. |
-| `builder` | skill, `/builder <plan path>` | Runs an approved plan in a fresh session. Starts one implementer per stage, sets its model and effort, reviews each diff, commits, keeps the plan current, and closes out. |
-| `implementer` | agent | Makes one stage from a brief and runs the build. It does not commit. |
+| `builder` | skill, `/builder <plan path>` | Runs an approved plan in a fresh session. Starts one worker per stage, sets its model and effort, reviews each diff, commits, keeps the plan current, and closes out. |
+| `worker` | agent | Makes one stage from a brief and runs the build. It does not commit. |
 | `reviewer` | skill `/reviewer`, and agent | Reviews all the work of a plan, runs a retro on its sessions, then asks if the work is ready to close out. |
 
 The long form `/workflow:planner` applies only when another command has the short name.
@@ -26,7 +26,7 @@ folder, the branch rule and the merge procedure.
 ### Claude Code
 
 Claude Code v2.1.292 or later is necessary. The builder sets the effort of each
-implementer call, and older versions ignore it. The builder stops on an older version.
+worker call, and older versions ignore it. The builder stops on an older version.
 Run `claude update` first.
 
 For one user:

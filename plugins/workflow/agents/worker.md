@@ -1,6 +1,6 @@
 ---
-name: implementer
-description: Makes one stage of a plan from a brief that the builder writes, then runs the build. Use for each implementer stage of a workflow plan. The builder reviews the diff and commits.
+name: worker
+description: Makes one stage of a plan from a brief that the builder writes, then runs the build. Use for each worker stage of a workflow plan. The builder reviews the diff and commits.
 tools: Read, Edit, Write, Grep, Glob, Bash
 model: sonnet
 effort: high

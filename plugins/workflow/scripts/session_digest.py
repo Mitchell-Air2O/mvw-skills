@@ -19,8 +19,8 @@ For each session, the digest gives:
 
 Context is the input tokens of one request: input_tokens plus
 cache_read_input_tokens plus cache_creation_input_tokens. context_report.py
-uses the same definition. An implementer whose last context is above the
-target is marked "over". The target applies only to implementers.
+uses the same definition. A worker whose last context is above the
+target is marked "over". The target applies only to workers.
 """
 
 import argparse
@@ -248,8 +248,8 @@ def digest_session(projects_dir, session_id, target):
             last = "-"
             if chain.contexts:
                 last = kilo(chain.contexts[-1])
-                is_implementer = meta.get("agentType", "").endswith("implementer")
-                if is_implementer and chain.contexts[-1] > target:
+                is_worker = meta.get("agentType", "").endswith("worker")
+                if is_worker and chain.contexts[-1] > target:
                     last += " over"
             model = chain.models.most_common(1)[0][0] if chain.models else "-"
             lines.append(
@@ -268,7 +268,7 @@ def main():
     parser.add_argument("--projects-dir",
                         default=os.path.join(os.path.expanduser("~"), ".claude", "projects"))
     parser.add_argument("--target", type=int, default=100000,
-                        help="the sizing target for one implementer, in tokens")
+                        help="the sizing target for one worker, in tokens")
     args = parser.parse_args()
     if not os.path.isdir(args.projects_dir):
         sys.exit(f"error: no projects folder at {args.projects_dir}")
