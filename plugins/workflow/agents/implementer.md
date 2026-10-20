@@ -20,6 +20,9 @@ report it.
 Run the build that the brief names. Report the errors. Do not commit, push, flash a
 device or run a hardware test.
 
+The builder is your only contact. Never ask the owner a question. Send each question and
+each finding to the builder in your report.
+
 If the brief is unclear, or the change needs a decision that the brief does not make,
 stop. Report the question. Do not guess.
 
@@ -27,4 +30,6 @@ Report:
 - each file that you changed, with one line on the change;
 - the build result, with the figures that the brief asks for;
 - the work left, if you stop before the stage is done;
+- the question that stopped you, if one did: the options that you see, and the option
+  that you recommend;
 - each problem that you found outside the brief, one line each. Do not fix it.

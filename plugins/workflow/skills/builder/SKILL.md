@@ -50,7 +50,12 @@ For each stage:
    - the build to run.
 3. Pick the model and the effort from the table (section 3). Start the implementer in the
    foreground, with both values set on the call.
-4. Read the implementer's report.
+4. Read the implementer's report. The owner talks only to you, never to an implementer.
+   - A question: answer it from the plan if the plan settles it. If not, ask the owner
+     yourself (the first stop rule). Then resume the implementer with the answer by
+     section 4, or start a fresh one if the answer changes the design.
+   - A finding outside the brief: write it in the plan under the stage, one line each.
+     The owner and the reviewer read it there.
 5. Read the full diff. Review it by the project's review checklist.
 6. Fix a small defect yourself, or resume the implementer by section 4. Build again.
 7. Commit by the project's commit rule.
@@ -75,8 +80,8 @@ The plan's "Who" line gives the row. A failed run moves the stage one row down.
 
 ## 4. Resume or fresh
 
-- Resume an implementer only for a small fix to its own stage, and only when it ended
-  under the sizing target.
+- Resume an implementer only for a small fix to its own stage or the answer to its
+  question, and only when it ended under the sizing target.
 - Never send a design change into a running implementer. Stop it. Start a fresh one with
   a revised brief.
 - The implementer has a turn limit. It is a checkpoint, not a context cutoff. At the
