@@ -15,13 +15,16 @@ close-out question, in the session that talks to the owner.
 ## 1. Review
 
 1. Read the plan, if there is one. Its Decisions section states what the work must do.
-2. Read the project instructions. Find the project's review checklist. Follow it. If the
-   project has none, review for correctness, for the project instructions and for the
-   plan's decisions.
-3. Get the full diff of the work: the branch against its merge base with the base
-   branch. If the plan spans more than one repository, or has commits directly on a base
-   branch, take each commit range from the stage status lines of the plan. Review each
-   range.
+2. Read the project instructions. Find the project's review checklist and its retro
+   queue. Follow the checklist. If the project has none, review for correctness, for the
+   project instructions and for the plan's decisions.
+3. Find the work: the branch against its merge base with the base branch. If the plan
+   spans more than one repository, or has commits directly on a base branch, take each
+   commit range from the stage status lines of the plan. Review each range. Run
+   `git diff --stat` first. Read the diff one file at a time with
+   `git diff <base> -- <file>`. Read the diff of each file one time. For a rename across
+   many files, check with a grep for the old term and the new term, not with the full
+   diff.
 4. Read each changed file around each change. Verify each finding with a tool before you
    report it. Label a finding that you cannot verify as an assumption.
 
@@ -48,8 +51,9 @@ You propose changes to the agent's environment, so that later sessions do better
      not a line of prose.
    - **Review rules**: the review missed a mistake. Add, clarify or remove a rule in the
      project's review checklist. Keep prose rules for judgment calls.
-   - **Stage size**: a worker overran the sizing target, or a stage needed a fresh
-     worker. Say what made the stage too large.
+   - **Stage size**: the builder's grouping of the tasks into stages. A worker overran
+     the sizing target, a stage needed a fresh worker, or two stages loaded the same
+     context. Say what made the stage too large, or which stages to merge.
    - **Model and effort**: a stage failed at its row of the table, or ran at a higher row
      than it needed.
    - **Tool economy**: a tool call cost many tokens and a cheaper call does the same job.
@@ -71,6 +75,9 @@ The owner picks proposals by number. Apply each pick:
   branch.
 - A framework pick: commit and push it to `mvw-skills`.
 - A pick for the owner's global instructions: edit the file in place.
+- A pick that the owner defers goes into the project's retro queue, under the plan's
+  heading, with its target file and the change. If the project has no retro queue,
+  report the deferred pick to the owner.
 
 Then ask the owner one question: is the work ready to close out? On yes, the builder
 does the close-out steps of the `builder` skill.
@@ -79,11 +86,16 @@ does the close-out steps of the `builder` skill.
 
 - Run sections 1 and 2 in the read-only agent: the `Agent` tool with
   `subagent_type: "workflow:reviewer"`, `model: "opus"`, `effort: "high"` and
-  `run_in_background: false`. Give it the plan path, the branch, the base branch and the
-  path of this file: `${CLAUDE_SKILL_DIR}/SKILL.md`.
+  `run_in_background: false` where the tool takes it. Give it the plan path, the branch,
+  the base branch and the path of this file: `${CLAUDE_SKILL_DIR}/SKILL.md`.
+- A session that another session started runs its subagents in the background, and the
+  owner accepts that. Wait for the task notification, and read the report after it. A
+  background call gets no hook line. Then run
+  `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/context_report.py" --session ${CLAUDE_SESSION_ID} --agent <agent ID>`
+  for the reviewer's context. The `Agent` tool result gives the agent ID.
 - If the `workflow:reviewer` agent type is not found, the session started before the
-  plugin was installed. Use `subagent_type: "general-purpose"` with the same `model`,
-  `effort` and `run_in_background`. Put the text of
+  plugin was installed. Use `subagent_type: "general-purpose"` with the same `model`
+  and `effort`. Put the text of
   `${CLAUDE_PLUGIN_ROOT}/agents/reviewer.md` in the prompt. That agent can edit files,
   so the prompt states the read-only limit. Tell the owner to run
   `claude plugin install workflow@mvw-skills --scope project` and to start the next

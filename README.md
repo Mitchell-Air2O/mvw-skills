@@ -10,8 +10,8 @@ A change goes through four roles:
 
 | Role | Kind | Does |
 |---|---|---|
-| `planner` | skill, `/planner` | Interviews the owner (the grill), sizes the stages, writes the plan in the main checkout, then hands off to a builder. |
-| `builder` | skill, `/builder <plan path>` | Runs an approved plan in a fresh session. Starts one worker per stage, sets its model and effort, reviews each diff, commits, keeps the plan current, and closes out. |
+| `planner` | skill, `/planner` | Interviews the owner (the grill), lists the tasks, writes the plan in the main checkout, then hands off to a builder. |
+| `builder` | skill, `/builder <plan path>` | Runs an approved plan in a fresh session. Groups the tasks into stages of about 100k tokens, picks the model and the effort of each stage, starts one worker per stage, reviews each diff, commits, keeps the plan current, and closes out. |
 | `worker` | agent | Makes one stage from a brief and runs the build. It does not commit. |
 | `reviewer` | skill `/reviewer`, and agent | Reviews all the work of a plan, runs a retro on its sessions, then asks if the work is ready to close out. |
 
@@ -19,7 +19,8 @@ The long form `/workflow:planner` applies only when another command has the shor
 
 The skills read the project values from the project instructions (`AGENTS.md`,
 `CLAUDE.md`): the build command, the review checklist, the plan folder, the memory
-folder, the branch rule and the merge procedure.
+folder, the declined-designs file, the retro queue, the branch rule and the merge
+procedure.
 
 ## Install
 
@@ -62,6 +63,10 @@ session after the install.
 
 The context hook runs `python3`. Put `python3` on PATH. On Windows, a python.org install
 can lack `python3`. Without `python3`, the hook fails and adds no line.
+
+A background subagent call gets no hook line.
+`context_report.py --session <session ID> --agent <agent ID>` prints the same line from
+the transcripts.
 
 Update:
 

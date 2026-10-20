@@ -1,6 +1,6 @@
 ---
 name: planner
-description: Interview the owner about a change (the grill), then write a staged plan that a builder session runs. Use when the owner runs /planner or asks to plan a change of more than about three steps.
+description: Interview the owner about a change (the grill), then write a plan of tasks that a builder session runs. Use when the owner runs /planner or asks to plan a change of more than about three steps.
 ---
 
 # Planner
@@ -18,6 +18,7 @@ values:
 - the review checklist (a skill or a document);
 - the plan folder (default `plans/`);
 - the memory folder, if the project has one;
+- the declined-designs file, if the project has one;
 - the branch naming rule;
 - the merge procedure.
 
@@ -53,6 +54,7 @@ you can look up.
 
 - Look up a short fact yourself.
 - Read yourself the code that you must reason about to recommend an answer.
+- Read the project's declined-designs file before you recommend an answer.
 - For a broad search where only the conclusion matters, start a read-only subagent on a
   cheaper model, in the background. Meanwhile, ask the questions that do not depend on
   the search. A question that depends on the search waits for the result.
@@ -61,17 +63,23 @@ The grill is done when the frontier is empty: you visited each branch, and you a
 nothing in silence. Do not write the plan until the owner confirms that you share one
 understanding.
 
-## 3. Size the stages
+## 3. List the tasks
 
-One worker subagent makes each stage, in one run.
+You list the tasks. The builder groups them into stages and picks the model and the
+effort of each stage. Pick no stage, no model and no effort.
 
-- Size each stage so that the worker ends its run at about 100k tokens of context.
-  The target is for sizing. It is not a cutoff.
-- A stage that splits cleanly into two is two stages. The builder never splits a stage.
-- Write prose edits and short edits as a builder stage ("Who: the builder"), when a brief
-  would be as long as the edit.
-- For each worker stage, pick the model and the effort from the table in the
-  builder skill. Write them in the stage's "Who" line.
+Each task names:
+
+- the goal;
+- the files to change;
+- the rule files and documents to read;
+- the tasks that it depends on;
+- the behavior change (yes or none);
+- the verify step.
+
+Each verify step names a command and an output that exists after the task lands. When a
+decision changes a rule that the docs state, the verify step greps for the old wording,
+not only for the renamed files.
 
 ## 4. Pick the name
 
@@ -97,11 +105,13 @@ The plan has these parts, in this order:
 2. `**Status:**` with the branch name, and `**Next step:**`.
 3. `## Why`: the problem and its cost.
 4. `## Decisions`: each answer of the grill, numbered. The builder treats this section as
-   the only source of truth.
+   the only source of truth. A decision that rests on a fact about the code or a tool
+   (an API is safe in an interrupt, a function is inline, a call is thread-safe) has a
+   `Checked:` line with the command and its result, or an `Assumption:` line.
 5. `## Rejected alternatives`: each alternative and the reason.
 6. `## Sessions`: a line `Sessions:` with your session ID and your role.
-7. `## Stages`: for each stage, the files, who makes it (with the model and the effort),
-   the behavior change (yes or none) and the verify step.
+7. `## Tasks`: each task, numbered, with the items of section 3. The builder adds a
+   `## Stages` section before its first worker.
 
 List the open decisions first, in one block, and stop. The owner answers them. Then
 write the plan one time.
