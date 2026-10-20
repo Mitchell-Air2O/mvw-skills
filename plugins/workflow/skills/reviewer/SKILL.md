@@ -16,15 +16,15 @@ close-out question, in the session that talks to the owner.
 
 1. Read the plan, if there is one. Its Decisions section states what the work must do.
 2. Read the project instructions. Find the project's review checklist and its retro
-   queue. Follow the checklist. If the project has none, review for correctness, for the
-   project instructions and for the plan's decisions.
-3. Find the work: the branch against its merge base with the base branch. If the plan
-   spans more than one repository, or has commits directly on a base branch, take each
-   commit range from the stage status lines of the plan. Review each range. Run
-   `git diff --stat` first. Read the diff one file at a time with
-   `git diff <base> -- <file>`. Read the diff of each file one time. For a rename across
-   many files, check with a grep for the old term and the new term, not with the full
-   diff.
+   queue. Follow the checklist. If the project has no checklist, review for correctness,
+   for the project instructions and for the plan's decisions.
+3. Find the work: the range `<base>...<branch>`, the branch against its merge base with
+   the base branch. If the plan spans more than one repository, or has commits directly
+   on a base branch, take each commit range `<first>^..<last>` from the stage status
+   lines of the plan. Review each range. Run `git diff --stat <range>` first. Read the
+   diff one file at a time with `git diff <range> -- <file>`. Read the diff of each file
+   one time. For a rename across many files, check with a grep for the old term and the
+   new term, not with the full diff.
 4. Read each changed file around each change. Verify each finding with a tool before you
    report it. Label a finding that you cannot verify as an assumption.
 

@@ -37,7 +37,9 @@ run or one builder edit. If the plan has a `## Stages` section, use it.
 - Size each stage so that its worker ends at about 100k tokens of context. Count what the
   worker reads, not what it changes. The target is for sizing. It is not a cutoff.
 - A large source file and edits of another kind (web, docs, rule files) are two stages.
-- Make a task yourself when its brief would be as long as the edit.
+- Make a task yourself only when the edit is a few lines in one file. Send a prose edit
+  across several files to a worker at row 1 of the table. The brief names the plan's
+  decisions. It does not copy their text.
 - Pick the model and the effort of each worker stage from the table (section 4).
 
 Write a `## Stages` section into the plan: for each stage, its tasks and who makes it
@@ -74,10 +76,11 @@ For each stage:
      section 5, or start a fresh one if the answer changes the design.
    - A finding outside the brief: write it in the plan under the stage, one line each.
      The owner and the reviewer read it there.
-5. Review the diff by the project's review checklist. Run `git diff --stat` first. Read
-   the diff one file at a time with `git diff <base> -- <file>`. Read the diff of each
-   file one time. For a rename across many files, check with a grep for the old term and
-   the new term, not with the full diff.
+5. Review the diff by the project's review checklist. Run `git status --short` and
+   `git diff --stat HEAD` first. Read the diff one file at a time with
+   `git diff HEAD -- <file>`. Read the diff of each file one time. Read each new file
+   that `git status` lists in full. For a rename across many files, check with a grep for
+   the old term and the new term, not with the full diff.
 6. Fix a small defect yourself, or resume the worker by section 5. Build again.
 7. Commit by the project's commit rule. Make one commit per stage. The body lists the
    tasks of the stage.
@@ -87,8 +90,8 @@ A stage overruns when its worker ends far above the sizing target. Finish the st
 with a fresh worker. Write the overrun in the plan, so that the retro reports the
 stage as too large.
 
-Ask the owner a question in the grill format of the `planner` skill: numbered, with a
-`(rec)` answer. For each option, say what it changes in the plan: the decisions, the
+When you ask the owner a question, use the grill format of the `planner` skill: numbered,
+with a `(rec)` answer. For each option, say what it changes in the plan: the decisions, the
 tasks and the stages. Write each answer into `## Decisions` with the date. Update the
 tasks and the stages that the answer changes before the next worker starts.
 
@@ -166,6 +169,9 @@ On yes, do these steps in order. Stop at the first step that fails, and report i
   in the main checkout from a worktree session. Update the plan with a short Python
   script through `Bash`. The script replaces each exact text one time and stops if the
   text is not found exactly one time.
+- A running session and its subagents keep the instruction text that they loaded at
+  their start. After you edit the owner's global instructions, tell the owner that the
+  change applies from the next session.
 - Start the worker with the `Agent` tool: `subagent_type: "workflow:worker"`,
   `model` (`sonnet` or `opus`), `effort` (`medium`, `high` or `xhigh`), and
   `run_in_background: false` where the tool takes it. A session that another session
