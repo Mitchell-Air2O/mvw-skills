@@ -37,6 +37,9 @@ run or one builder edit. If the plan has a `## Stages` section, use it.
 - Size each stage so that its worker ends at about 100k tokens of context. Count what the
   worker reads, not what it changes. The target is for sizing. It is not a cutoff.
 - A large source file and edits of another kind (web, docs, rule files) are two stages.
+- Count each rule file and doc that a stage reads or updates in its size. When a stage
+  that changes behavior also updates more than about four rule files or docs, put those
+  updates in a following stage at row 1 of the table. That stage reads the landed diff.
 - Make a task yourself only when the edit is a few lines in one file. Send a prose edit
   across several files to a worker at row 1 of the table. The brief names the plan's
   decisions. It does not copy their text.
@@ -121,8 +124,9 @@ stage one row down.
 
 ## 6. Your own context
 
-You have no token limit. You decide when your context is too large. Then, at a stage
-boundary:
+You have no token limit. Hand off when your own context passes about 250k tokens, or
+earlier when you judge it too large. In Claude Code, the hook line after each worker gives
+the figure. Then, at a stage boundary:
 
 1. Update the plan's `**Next step:**`, so that a new session can resume from the plan
    file alone.
