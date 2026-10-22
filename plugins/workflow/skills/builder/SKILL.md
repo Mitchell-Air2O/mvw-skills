@@ -27,6 +27,9 @@ design and the review. The worker makes the edit and the build.
    by the project's branch rule. Then delete the other branch if it holds no commits of
    its own. The worktree folder name can differ from the branch name.
 7. Check the tool version. See "In Claude Code".
+8. If the planner's session started yours, move your session to top level. The owner
+   then talks to you alone, and the planner gets no report of your turns. See
+   "In Claude Code".
 
 ## 2. Group the tasks into stages
 
@@ -38,8 +41,9 @@ run or one builder edit. If the plan has a `## Stages` section, use it.
   worker reads, not what it changes. The target is for sizing. It is not a cutoff.
 - A large source file and edits of another kind (web, docs, rule files) are two stages.
 - Count each rule file and doc that a stage reads or updates in its size. When a stage
-  that changes behavior also updates more than about four rule files or docs, put those
-  updates in a following stage at row 1 of the table. That stage reads the landed diff.
+  that changes behavior also updates more than about three rule files or docs, or
+  changes code in more than two languages, put the doc updates in a following stage at
+  row 1 of the table. That stage reads the landed diff.
 - Make a task yourself only when the edit is a few lines in one file. Send a prose edit
   across several files to a worker at row 1 of the table. The brief names the plan's
   decisions. It does not copy their text.
@@ -87,7 +91,8 @@ For each stage:
 6. Fix a small defect yourself, or resume the worker by section 5. Build again.
 7. Commit by the project's commit rule. Make one commit per stage. The body lists the
    tasks of the stage.
-8. Mark the stage done in the plan with the date. Write the new `**Next step:**`.
+8. Mark the stage done in the plan with the date, the commit and the worker's token
+   count. Write the new `**Next step:**`.
 
 A stage overruns when its worker ends far above the sizing target. Finish the stage
 with a fresh worker. Write the overrun in the plan, so that the retro reports the
@@ -155,7 +160,8 @@ On yes, do these steps in order. Stop at the first step that fails, and report i
 3. Publish by the project's merge procedure.
 4. Delete the branch, local and on origin. Remove the worktree, except where step 5
    removes it (see "In Claude Code").
-5. Archive the sessions in the plan's `Sessions:` line. Archive your own session last.
+5. Archive the sessions in the plan's `Sessions:` line together: the planner's session
+   first, your own session last.
 
 ## In Claude Code
 
@@ -193,6 +199,11 @@ On yes, do these steps in order. Stop at the first step that fails, and report i
   `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/context_report.py" --session ${CLAUDE_SESSION_ID} --agent <agent ID>`.
   It prints the same line. The `Agent` tool result gives the agent ID.
 - Resume a worker with `SendMessage` to its agent ID. Stop one with `TaskStop`.
+- Top level (section 1, step 8): in the Claude desktop app, the planner's card starts the
+  builder as a side session of the planner. Call `detach_session` with
+  `session_id: "self"`. The sidebar then shows the builder at top level, and the app no
+  longer sends its reports to the planner. The planner is no longer archived with it, so
+  close-out step 5 archives both. The CLI has no side sessions; skip the step.
 - The builder hand-off: in the Claude desktop app, propose a new session as a card. Use
   `start_session` with `initiation: "own_initiative"`, `context: "fresh"`,
   `title: <branch name>`, `prompt: "/builder <full plan path>"`, `background` (the goal

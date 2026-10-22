@@ -135,5 +135,6 @@ context. The owner's start of that session is the "go". Your session then ends.
   of the plan and its full path, at least 80 characters), `use_worktree: true` and
   `branch_name: <branch name>`. The app adds a prefix and a suffix to the branch name.
   The builder creates the plan's branch in that worktree. The owner's click starts the
-  session. In the CLI, tell the owner to start a new session and run
+  session. The builder then moves itself to top level, so its reports do not come back
+  to your session. Its close-out archives your session with its own. In the CLI, tell the owner to start a new session and run
   `/builder <full plan path>`.
