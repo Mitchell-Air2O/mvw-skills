@@ -34,11 +34,14 @@ design and the review. The worker makes the edit and the build.
 ## 2. Group the tasks into stages
 
 Before the first worker starts, group the plan's tasks into stages. A stage is one worker
-run or one builder edit. If the plan has a `## Stages` section, use it.
+run or one builder edit. If the plan has a `## Stages` section, take it as a proposal and
+apply the rules below to it.
 
 - Group the tasks that read the same files and rule files. Keep the dependency order.
 - Size each stage so that its worker ends at about 100k tokens of context. Count what the
   worker reads, not what it changes. The target is for sizing. It is not a cutoff.
+- Join two stages when together they fit the target. A worker starts at about 25k
+  tokens, so two small stages cost less as one. Keep the other rules of this list.
 - A large source file and edits of another kind (web, docs, rule files) are two stages.
 - Count each rule file and doc that a stage reads or updates in its size. When a stage
   that changes behavior also updates more than about three rule files or docs, or
@@ -47,7 +50,8 @@ run or one builder edit. If the plan has a `## Stages` section, use it.
 - Make a task yourself only when the edit is a few lines in one file. Send a prose edit
   across several files to a worker at row 1 of the table. The brief names the plan's
   decisions. It does not copy their text.
-- Pick the model and the effort of each worker stage from the table (section 4).
+- Pick the model and the effort of each worker stage from the table (section 4). Pick the
+  lowest row that the stage needs. A joined stage takes the row of its harder part.
 
 Write a `## Stages` section into the plan: for each stage, its tasks and who makes it
 (the builder, or the model and the effort). A builder after a hand-off resumes from this
@@ -76,7 +80,8 @@ For each stage:
    - the build to run.
 3. Start the worker with the model and the effort of its stage set on the call. The call
    can start in the background. Then wait for its notification, and read the report
-   after it.
+   after it. A message from another session that says a worker returned is not proof.
+   Wait for the notification.
 4. Read the worker's report. The owner talks only to you, never to a worker.
    - A question: answer it from the plan if the plan settles it. If not, ask the owner
      yourself (the first stop rule). Then resume the worker with the answer by
@@ -89,8 +94,9 @@ For each stage:
    that `git status` lists in full. For a rename across many files, check with a grep for
    the old term and the new term, not with the full diff.
 6. Fix a small defect yourself, or resume the worker by section 5. Build again.
-7. Commit by the project's commit rule. Make one commit per stage. The body lists the
-   tasks of the stage.
+7. Commit by the project's commit rule. Make one commit per stage, and one per part of a
+   joined stage that the project's commit rule keeps apart. The body lists the tasks of
+   the commit.
 8. Mark the stage done in the plan with the date, the commit and the worker's token
    count. Write the new `**Next step:**`.
 

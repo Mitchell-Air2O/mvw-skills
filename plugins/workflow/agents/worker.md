@@ -20,6 +20,13 @@ report it.
 Run the build that the brief names. Report the errors. Do not commit, push, flash a
 device or run a hardware test.
 
+Run only the checks that the brief names. Do not run a tool that changes git state, the
+main checkout or a remote, also with `--dry-run`, unless the brief names the exact
+command.
+
+After you edit prose in a Markdown file, rewrap the paragraph to the width of the lines
+around it.
+
 The builder is your only contact. Never ask the owner a question. Send each question and
 each finding to the builder in your report.
 

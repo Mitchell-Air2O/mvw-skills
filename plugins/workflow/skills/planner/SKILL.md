@@ -11,6 +11,10 @@ runs it.
 
 ## 1. Read the project values
 
+First, update the `workflow` plugin to its newest version, so that the plan and its
+builder use the newest skills (see "In Claude Code"). If the update fails, tell the
+owner, and go on with the version that runs.
+
 Read the project instructions (`AGENTS.md`, `CLAUDE.md` or the equivalent). Find these
 values:
 
@@ -124,6 +128,13 @@ context. The owner's start of that session is the "go". Your session then ends.
 
 ## In Claude Code
 
+- The update (section 1): run `claude plugin marketplace update mvw-skills`, then
+  `claude plugin update workflow@mvw-skills --scope <scope>`, with the scope that the
+  project installs it in. An update applies to the sessions that start after it, so the
+  builder session gets it. Your own session keeps the skill text that it loaded. If the
+  version changed, read the planner skill of the new version: the folder beside
+  `${CLAUDE_PLUGIN_ROOT}` that has the new version's name. Follow that text from its
+  section 1.
 - Your session ID is `${CLAUDE_SESSION_ID}`. Write it in the `Sessions:` line.
 - Set the session title: in the Claude desktop app, `set_session_title` with
   `session_id: "self"`; in the CLI, `/rename`.
