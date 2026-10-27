@@ -40,6 +40,9 @@ apply the rules below to it.
 - Group the tasks that read the same files and rule files. Keep the dependency order.
 - Size each stage so that its worker ends at about 100k tokens of context. Count what the
   worker reads, not what it changes. The target is for sizing. It is not a cutoff.
+- A task that writes text and checks each claim against the code reads more than its read
+  list, because the worker opens the code behind each claim. Estimate such a task at
+  about 2.5 times its read list.
 - Join two stages when together they fit the target. A worker starts at about 25k
   tokens, so two small stages cost less as one. Keep the other rules of this list.
 - A large source file and edits of another kind (web, docs, rule files) are two stages.
@@ -91,8 +94,11 @@ For each stage:
 5. Review the diff by the project's review checklist. Run `git status --short` and
    `git diff --stat HEAD` first. Read the diff one file at a time with
    `git diff HEAD -- <file>`. Read the diff of each file one time. Read each new file
-   that `git status` lists in full. For a rename across many files, check with a grep for
-   the old term and the new term, not with the full diff.
+   that `git status` lists in full. For a new doc of more than about 20k characters, first
+   run the mechanical checks with grep (for example values, history words, links and line
+   width). Then read the doc one section at a time, with the code line that each claim
+   cites. Do not read the whole doc again after that. For a rename across many files,
+   check with a grep for the old term and the new term, not with the full diff.
 6. Fix a small defect yourself, or resume the worker by section 5. Build again.
 7. Commit by the project's commit rule. Make one commit per stage, and one per part of a
    joined stage that the project's commit rule keeps apart. The body lists the tasks of
@@ -115,7 +121,7 @@ Set both on each worker call. Never leave the effort to the default.
 
 | The stage | Model | Effort |
 |---|---|---|
-| The brief names every edit, or the stage is mostly text edits with at most a one-line logic change. No decision is left. | Sonnet | medium |
+| The brief names every edit, or the stage is mostly text edits with at most a one-line logic change, or it rewrites one file and its estimate is under about 80k tokens. No decision is left. | Sonnet | medium |
 | Several files, a new helper, or build errors to work through (the default) | Sonnet | high |
 | Judgment that the brief cannot settle (concurrency, numerics, a subtle invariant), or a Sonnet run failed on the stage | Opus | high |
 | Opus at high effort failed on the same stage | Opus | xhigh |
@@ -182,9 +188,11 @@ On yes, do these steps in order. Stop at the first step that fails, and report i
 - Set the session title: in the Claude desktop app, `set_session_title` with
   `session_id: "self"`; in the CLI, `/rename`.
 - The plan file: in the Claude desktop app, a hook refuses `Edit` on a file
-  in the main checkout from a worktree session. Update the plan with a short Python
-  script through `Bash`. The script replaces each exact text one time and stops if the
-  text is not found exactly one time.
+  in the main checkout from a worktree session. Update the plan through `Bash` with
+  `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/plan_update.py" <plan path>`:
+  `--replace OLD NEW` for a stage row or a status line, `--append "<heading>" @<file>`
+  for a stage result, and `--next-step TEXT`. Write a block of several lines to a file in your scratchpad
+  first. The script writes nothing unless each edit applies exactly one time.
 - A running session and its subagents keep the instruction text that they loaded at
   their start. After you edit the owner's global instructions, tell the owner that the
   change applies from the next session.

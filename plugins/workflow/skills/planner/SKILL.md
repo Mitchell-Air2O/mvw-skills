@@ -62,6 +62,8 @@ you can look up.
 - For a broad search where only the conclusion matters, start a read-only subagent on a
   cheaper model, in the background. Meanwhile, ask the questions that do not depend on
   the search. A question that depends on the search waits for the result.
+- Split a broad audit so that each subagent reads about 100k tokens: give each one a part
+  of the code. Ask for findings with file:line only, not quotes of the code.
 
 The grill is done when the frontier is empty: you visited each branch, and you assume
 nothing in silence. Do not write the plan until the owner confirms that you share one
