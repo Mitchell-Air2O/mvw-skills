@@ -1,6 +1,18 @@
 {
-  "description": "After a foreground subagent returns, report its context and the session's own context.",
+  "description": "Before a shell command, refuse a git stash command that can take another session's changes. After a foreground subagent returns, report its context and the session's own context.",
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/stash_guard.py\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Agent",

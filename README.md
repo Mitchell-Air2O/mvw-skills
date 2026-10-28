@@ -61,8 +61,16 @@ Without this step, the settings download the plugin but load no skill in `claude
 session that started before the install does not see the plugin's agents. Start a new
 session after the install.
 
-The context hook runs `python3`. Put `python3` on PATH. On Windows, a python.org install
-can lack `python3`. Without `python3`, the hook fails and adds no line.
+The plugin has two hooks:
+- The stash guard runs before each Bash and PowerShell command. Every worktree of a
+  repository shares one stash stack. So the guard refuses a git stash command that can
+  take another session's changes: a stash with no message, `pop`, `clear`, and `apply`
+  or `drop` with no entry named. The refusal names the safe commands.
+- The context hook runs after each foreground subagent and reports its context.
+
+The hooks run `python3`. Put `python3` on PATH. On Windows, a python.org install can lack
+`python3`. Without `python3`, a hook fails: the guard refuses nothing, and the context
+hook adds no line.
 
 A background subagent call gets no hook line.
 `context_report.py --session <session ID> --agent <agent ID>` prints the same line from
@@ -91,7 +99,7 @@ not a link to this clone. Run it again after a pull that adds a skill.
 
 Update: `git pull` in the clone. The links then point to the new text.
 
-The agents, the hook and the scripts are Claude Code only. In another tool, the builder
+The agents, the hooks and the scripts are Claude Code only. In another tool, the builder
 makes each stage itself or in that tool's own subagent. Assumption: Codex follows a
 linked skill folder. This is not yet tested.
 
