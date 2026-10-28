@@ -46,6 +46,8 @@ apply the rules below to it.
 - Join two stages when together they fit the target. A worker starts at about 25k
   tokens, so two small stages cost less as one. Keep the other rules of this list.
 - A large source file and edits of another kind (web, docs, rule files) are two stages.
+- A full read of a file of more than about 800 lines costs a large share of the sizing
+  target. If two tasks each change such a file, consider them as two stages.
 - Count each rule file and doc that a stage reads or updates in its size. When a stage
   that changes behavior also updates more than about three rule files or docs, or
   changes code in more than two languages, put the doc updates in a following stage at
@@ -81,6 +83,10 @@ For each stage:
    - the helpers to reuse or to add;
    - what done looks like;
    - the build to run.
+
+   When a file that the stage reads has more than about 800 lines, the brief names the
+   functions and the line ranges to read. It tells the worker not to read the file in
+   full, because a full read costs a large share of the sizing target.
 3. Start the worker with the model and the effort of its stage set on the call. The call
    can start in the background. Then wait for its notification, and read the report
    after it. A message from another session that says a worker returned is not proof.
@@ -93,12 +99,14 @@ For each stage:
      The owner and the reviewer read it there.
 5. Review the diff by the project's review checklist. Run `git status --short` and
    `git diff --stat HEAD` first. Read the diff one file at a time with
-   `git diff HEAD -- <file>`. Read the diff of each file one time. Read each new file
-   that `git status` lists in full. For a new doc of more than about 20k characters, first
-   run the mechanical checks with grep (for example values, history words, links and line
-   width). Then read the doc one section at a time, with the code line that each claim
-   cites. Do not read the whole doc again after that. For a rename across many files,
-   check with a grep for the old term and the new term, not with the full diff.
+   `git diff HEAD -- <file>`. Read the diff of each file one time. Review a large file's
+   diff hunk by hunk. For each hunk, read only the function around it: `grep -n` for the
+   function, then a ranged read. Do not read a changed large file in full. Read each new
+   file that `git status` lists in full. For a new doc of more than about 20k characters,
+   first run the mechanical checks with grep (for example values, history words, links
+   and line width). Then read the doc one section at a time, with the code line that each
+   claim cites. Do not read the whole doc again after that. For a rename across many
+   files, check with a grep for the old term and the new term, not with the full diff.
 6. Fix a small defect yourself, or resume the worker by section 5. Build again.
 7. Commit by the project's commit rule. Make one commit per stage, and one per part of a
    joined stage that the project's commit rule keeps apart. The body lists the tasks of

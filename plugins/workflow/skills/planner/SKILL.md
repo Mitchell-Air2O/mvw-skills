@@ -114,7 +114,10 @@ The plan has these parts, in this order:
 4. `## Decisions`: each answer of the grill, numbered. The builder treats this section as
    the only source of truth. A decision that rests on a fact about the code or a tool
    (an API is safe in an interrupt, a function is inline, a call is thread-safe) has a
-   `Checked:` line with the command and its result, or an `Assumption:` line.
+   `Checked:` line with the command and its result, or an `Assumption:` line. When a
+   decision changes the value that a function returns, grep the callers of that function
+   and name each caller in the `Checked:` line. A caller that feeds a second actuator,
+   guard or module is a consumer that the decision must cover.
 5. `## Rejected alternatives`: each alternative and the reason.
 6. `## Sessions`: a line `Sessions:` with your session ID and your role.
 7. `## Tasks`: each task, numbered, with the items of section 3. The builder adds a
