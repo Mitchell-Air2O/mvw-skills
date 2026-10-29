@@ -89,7 +89,9 @@ Each task names:
 Each verify step names a command and an output that exists after the task lands. When a
 decision changes a rule that the docs state, the verify step greps for the old wording
 in every file that states the rule: the framework, the project instructions, the rule
-files and the memory. A grep for the renamed files alone is not enough.
+files and the memory. A grep for the renamed files alone is not enough. A doc can state
+the same rule in other words. The verify step also greps for the subject of the rule
+(the part, the function or the file, with its verb), and the builder reads each hit.
 
 ## 4. Pick the name
 

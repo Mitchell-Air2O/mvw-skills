@@ -84,7 +84,9 @@ For each stage:
    - the pattern to follow;
    - the helpers to reuse or to add;
    - what done looks like;
-   - the build to run.
+   - the build to run;
+   - for a stage that writes docs or rule files: the project's logic-flow rule, and the
+     instruction to give in the report the code line behind each new claim of behavior.
 
    When a file that the stage reads has more than about 800 lines, the brief names the
    functions and the line ranges to read. It tells the worker not to read the file in
