@@ -94,6 +94,10 @@ def is_owner_message(entry):
     """Return True for a message that the owner typed."""
     if entry.get("type") != "user" or entry.get("isSidechain") or entry.get("isMeta"):
         return False
+    if entry.get("isCompactSummary"):
+        return False
+    if (entry.get("origin") or {}).get("kind") == "human":
+        return True
     content = entry.get("message", {}).get("content")
     if isinstance(content, list):
         if any(block.get("type") == "tool_result" for block in content

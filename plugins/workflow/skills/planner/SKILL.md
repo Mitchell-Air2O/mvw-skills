@@ -15,6 +15,9 @@ First, update the `workflow` plugin to its newest version, so that the plan and 
 builder use the newest skills (see "In Claude Code"). If the update fails, tell the
 owner, and go on with the version that runs.
 
+Plan one change per session. If the owner asks for a second plan, offer a new `/planner`
+session for it.
+
 Read the project instructions (`AGENTS.md`, `CLAUDE.md` or the equivalent). Find these
 values:
 

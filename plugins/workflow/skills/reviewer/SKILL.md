@@ -69,12 +69,15 @@ You propose changes to the agent's environment, so that later sessions do better
 
 ## 3. Picks and close-out
 
-Show the owner each proposal with its exact text before the pick. Apply only the text
-that the owner saw. The owner picks proposals by number. Apply each pick:
+Before you show the proposals, write each one with its exact text under the plan's review
+results. A hand-off builder shows them from there. Show the owner each proposal with its
+exact text before the pick. Apply only the text that the owner saw. The owner picks
+proposals by number. Apply each pick:
 
 - A project pick goes on a second branch, by the project's branch rule. One change per
   branch.
-- A framework pick: commit and push it to `mvw-skills`.
+- A framework pick: commit and push it to `mvw-skills`. Then update the installed plugin
+  by the planner's update step, so that the next session of the plan loads the pick.
 - A pick for the owner's global instructions: edit the file in place.
 - A pick that the owner defers goes into the project's retro queue, under the plan's
   heading, with its target file and the change. If the project has no retro queue,

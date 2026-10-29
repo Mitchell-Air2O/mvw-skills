@@ -27,9 +27,9 @@ design and the review. The worker makes the edit and the build.
    by the project's branch rule. Then delete the other branch if it holds no commits of
    its own. The worktree folder name can differ from the branch name.
 7. Check the tool version. See "In Claude Code".
-8. If the planner's session started yours, move your session to top level. The owner
-   then talks to you alone, and the planner gets no report of your turns. See
-   "In Claude Code".
+8. If another session started yours (the planner's card or a builder's hand-off card),
+   move your session to top level. The owner then talks to you alone, and the session
+   that started yours gets no report of your turns. See "In Claude Code".
 
 ## 2. Group the tasks into stages
 
@@ -112,7 +112,8 @@ For each stage:
    joined stage that the project's commit rule keeps apart. The body lists the tasks of
    the commit.
 8. Mark the stage done in the plan with the date, the commit and the worker's token
-   count. Write the new `**Next step:**`.
+   count. Write the new `**Next step:**`. When a stage lands, delete the builder notes
+   for that stage. The commit and the stage result hold what stays.
 
 A stage overruns when its worker ends far above the sizing target. Finish the stage
 with a fresh worker. Write the overrun in the plan, so that the retro reports the
@@ -158,13 +159,19 @@ the figure. Then, at a stage boundary:
 2. Offer a fresh builder session that runs `/builder <full plan path>`.
 3. Stop.
 
+If an owner question is open at the hand-off point, write it in the plan under
+`**Next step:**` and hand off with it. The new builder asks it. If the owner answers in
+your session after you offer a hand-off, record the answer in the plan, withdraw the card
+and offer a new one.
+
 ## 7. Review and close-out
 
 After the last stage:
 
 1. Run the reviewer on all the work of the plan (see the `reviewer` skill). Give the
    owner its report.
-2. Apply the retro picks that the owner makes, by the `reviewer` skill.
+2. Apply the retro picks that the owner makes, by the `reviewer` skill. If the review
+   adds stages, apply the picks after those stages land, not while a worker runs.
 3. Ask the close-out question of the `reviewer` skill.
 
 On yes, do these steps in order. Stop at the first step that fails, and report it.
@@ -221,18 +228,20 @@ On yes, do these steps in order. Stop at the first step that fails, and report i
   `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/context_report.py" --session ${CLAUDE_SESSION_ID} --agent <agent ID>`.
   It prints the same line. The `Agent` tool result gives the agent ID.
 - Resume a worker with `SendMessage` to its agent ID. Stop one with `TaskStop`.
-- Top level (section 1, step 8): in the Claude desktop app, the planner's card starts the
-  builder as a side session of the planner. Call `detach_session` with
-  `session_id: "self"`. The sidebar then shows the builder at top level, and the app no
-  longer sends its reports to the planner. The planner is no longer archived with it, so
-  close-out step 5 archives both. The CLI has no side sessions; skip the step.
+- Top level (section 1, step 8): in the Claude desktop app, the planner's card and a
+  builder's hand-off card start the new builder as a side session of the session that
+  proposed it. Call `detach_session` with `session_id: "self"`. The sidebar then shows the
+  builder at top level, and the app no longer sends its reports to the session that
+  started it. That session is no longer archived with it, so close-out step 5 archives
+  every session of the `Sessions:` line. The CLI has no side sessions; skip the step.
 - The builder hand-off: in the Claude desktop app, propose a new session as a card. Use
   `start_session` with `initiation: "own_initiative"`, `context: "fresh"`,
   `title: <branch name>`, `prompt: "/builder <full plan path>"`, `background` (the goal
   of the plan, its full path and the stage to resume, at least 80 characters),
   `use_worktree: true` and `branch_name: <branch name>`. The app adds a prefix and a
-  suffix to the branch name. The new builder creates the plan's branch by section 1. In
-  the CLI, tell the owner to start a new session and run `/builder <full plan path>`.
+  suffix to the branch name. The new builder creates the plan's branch by section 1. The
+  new builder detaches by section 1, step 8. In the CLI, tell the owner to start a new
+  session and run `/builder <full plan path>`.
 - Archive a session with `archive_session` in the Claude desktop app. It also removes the
   session's worktree, so close-out step 4 does not remove it. The CLI has no such step;
   skip it, and remove the worktree in step 4.
