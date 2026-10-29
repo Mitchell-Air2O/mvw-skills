@@ -69,7 +69,8 @@ You propose changes to the agent's environment, so that later sessions do better
 
 ## 3. Picks and close-out
 
-The owner picks proposals by number. Apply each pick:
+Show the owner each proposal with its exact text before the pick. Apply only the text
+that the owner saw. The owner picks proposals by number. Apply each pick:
 
 - A project pick goes on a second branch, by the project's branch rule. One change per
   branch.
