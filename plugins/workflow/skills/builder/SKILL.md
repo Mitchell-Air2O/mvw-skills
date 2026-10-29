@@ -26,7 +26,9 @@ design and the review. The worker makes the edit and the build.
    tool can name the worktree and its branch), create the plan's branch in that worktree
    by the project's branch rule. Then delete the other branch if it holds no commits of
    its own. The worktree folder name can differ from the branch name.
-7. Check the tool version. See "In Claude Code".
+7. Check the tool version. Then update the `workflow` plugin by the planner's update
+   step. If the version changed, read the builder skill of the new version and follow it
+   from section 1. See "In Claude Code".
 8. If another session started yours (the planner's card or a builder's hand-off card),
    move your session to top level. The owner then talks to you alone, and the session
    that started yours gets no report of your turns. See "In Claude Code".
