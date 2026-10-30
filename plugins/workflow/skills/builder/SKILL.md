@@ -42,9 +42,8 @@ apply the rules below to it.
 - Group the tasks that read the same files and rule files. Keep the dependency order.
 - Size each stage so that its worker ends at about 100k tokens of context. Count what the
   worker reads, not what it changes. The target is for sizing. It is not a cutoff.
-- A task that writes text and checks each claim against the code reads more than its read
-  list, because the worker opens the code behind each claim. Estimate such a task at
-  about 2.5 times its read list.
+- A worker reads more than its read list: it opens the code around each edit, and it
+  searches. Estimate each stage at about 27k tokens plus about 2.5 times its read list.
 - Join two stages when together they fit the target. A worker starts at about 25k
   tokens, so two small stages cost less as one. Keep the other rules of this list.
 - A large source file and edits of another kind (web, docs, rule files) are two stages.
@@ -241,10 +240,10 @@ On yes, do these steps in order. Stop at the first step that fails, and report i
 - The builder hand-off: in the Claude desktop app, propose a new session as a card. Use
   `start_session` with `initiation: "own_initiative"`, `context: "fresh"`,
   `title: <branch name>`, `prompt: "/builder <full plan path>"`, `background` (the goal
-  of the plan, its full path and the stage to resume, at least 80 characters),
-  `use_worktree: true` and `branch_name: <branch name>`. The app adds a prefix and a
-  suffix to the branch name. The new builder creates the plan's branch by section 1. The
-  new builder detaches by section 1, step 8. In the CLI, tell the owner to start a new
+  of the plan, its full path and the stage to resume, at least 80 characters) and
+  `use_worktree: true`. Do not pass `branch_name`, because a card drops it. The app names
+  the worktree branch when the session starts. The new builder creates the plan's branch
+  by section 1. The new builder detaches by section 1, step 8. In the CLI, tell the owner to start a new
   session and run `/builder <full plan path>`.
 - Archive a session with `archive_session` in the Claude desktop app. It also removes the
   session's worktree, so close-out step 4 does not remove it. The CLI has no such step;

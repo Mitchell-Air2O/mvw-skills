@@ -13,6 +13,8 @@ For each session, the digest gives:
 - the counts: owner messages, requests, compactions, API errors;
 - the session's context at its first, largest and last request;
 - the tool calls by tool, and the largest tool results;
+- each owner message, with its time and the plan-file edits since the message
+  before it;
 - one row per subagent: type, description, model, requests, tool calls,
   context at the first and last request, and the messages that the session
   sent to it.
@@ -27,11 +29,13 @@ import argparse
 import collections
 import json
 import os
+import re
 import sys
 
 LARGEST_RESULTS = 5
 HINT_LENGTH = 60
-OWNER_TEXT_LENGTH = 300
+OWNER_TEXT_LENGTH = 2000
+REMINDER_RE = re.compile(r"<system-reminder>.*?</system-reminder>", re.DOTALL)
 
 
 def context_of(usage):
@@ -99,19 +103,34 @@ def content_text(content):
     return content if isinstance(content, str) else ""
 
 
+def owner_text(content):
+    """Return a message's text without the system reminders in front of the owner's words."""
+    return REMINDER_RE.sub("", content_text(content)).strip()
+
+
 def is_owner_message(entry):
     """Return True for a message that the owner typed."""
     if entry.get("type") != "user" or entry.get("isSidechain") or entry.get("isMeta"):
         return False
     if entry.get("isCompactSummary"):
         return False
+    content = entry.get("message", {}).get("content")
+    if content_text(content).lstrip().startswith("<system-reminder>") and not owner_text(content):
+        return False
     if (entry.get("origin") or {}).get("kind") == "human":
         return True
-    content = entry.get("message", {}).get("content")
     if isinstance(content, list) and any(block.get("type") == "tool_result"
                                          for block in content if isinstance(block, dict)):
         return False
     return isinstance(content, (str, list)) and not content_text(content).lstrip().startswith("<")
+
+
+def is_plan_edit(block):
+    """Return True for a tool call that changes a plan file."""
+    tool_input = block.get("input", {})
+    if block["name"] in ("Edit", "Write"):
+        return str(tool_input.get("file_path", "")).endswith("_PLAN.md")
+    return block["name"] == "Bash" and "plan_update.py" in str(tool_input.get("command", ""))
 
 
 class Chain:
@@ -176,6 +195,7 @@ def digest_session(projects_dir, session_id, target):
     title = None
     versions = []
     owner_messages = []
+    plan_edits = 0
     compactions = 0
     api_errors = 0
     results = []
@@ -193,14 +213,17 @@ def digest_session(projects_dir, session_id, target):
         if kind == "assistant":
             main.add_assistant(entry)
             for block in entry.get("message", {}).get("content", []):
-                if (isinstance(block, dict) and block.get("type") == "tool_use"
-                        and block["name"] == "SendMessage"):
-                    messages_to[block.get("input", {}).get("to")] += 1
+                if isinstance(block, dict) and block.get("type") == "tool_use":
+                    if block["name"] == "SendMessage":
+                        messages_to[block.get("input", {}).get("to")] += 1
+                    plan_edits += is_plan_edit(block)
         elif kind == "user":
             content = entry.get("message", {}).get("content")
             if is_owner_message(entry):
-                text = " ".join(content_text(content).split())
-                owner_messages.append(text[:OWNER_TEXT_LENGTH])
+                text = " ".join(owner_text(content).split())
+                owner_messages.append((entry.get("timestamp", "?"), plan_edits,
+                                        text[:OWNER_TEXT_LENGTH]))
+                plan_edits = 0
             if isinstance(content, list):
                 for block in content:
                     if isinstance(block, dict) and block.get("type") == "tool_result":
@@ -240,7 +263,8 @@ def digest_session(projects_dir, session_id, target):
         lines.append("")
         lines.append("### Owner messages")
         lines.append("")
-        lines.extend(f"- {text}" for text in owner_messages)
+        lines.extend(f"- {stamp}, {edits} plan edits since the last message: {text}"
+                     for stamp, edits, text in owner_messages)
 
     folder = os.path.join(os.path.splitext(path)[0], "subagents")
     agents = []

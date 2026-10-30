@@ -65,8 +65,15 @@ you can look up.
 - For a broad search where only the conclusion matters, start a read-only subagent on a
   cheaper model, in the background. Meanwhile, ask the questions that do not depend on
   the search. A question that depends on the search waits for the result.
+- Run a replay, a fit or a sweep the same way. Use a subagent that can run scripts. It
+  keeps one script with the values as arguments, and it returns a table. Send it the new
+  values for a recheck.
 - Split a broad audit so that each subagent reads about 100k tokens: give each one a part
   of the code. Ask for findings with file:line only, not quotes of the code.
+
+When the owner states a general rule, write it back before you apply it. Give two real
+examples that pass and two that fail. When the plan adds a rule, grep the plan's own text
+against that rule before you ask for approval.
 
 The grill is done when the frontier is empty: you visited each branch, and you assume
 nothing in silence. Do not write the plan until the owner confirms that you share one
@@ -92,6 +99,9 @@ in every file that states the rule: the framework, the project instructions, the
 files and the memory. A grep for the renamed files alone is not enough. A doc can state
 the same rule in other words. The verify step also greps for the subject of the rule
 (the part, the function or the file, with its verb), and the builder reads each hit.
+
+When the grill finds a hardware fact or a test result that a later session needs, add a
+task that saves it by the project's memory rules.
 
 ## 4. Pick the name
 
@@ -129,7 +139,10 @@ The plan has these parts, in this order:
    `## Stages` section before its first worker.
 
 List the open decisions first, in one block, and stop. The owner answers them. Then
-write the plan one time.
+write the plan. The owner can correct the written plan. Write each correction into the
+plan at once, so that a compaction does not lose it. Before you ask for approval, run
+each `Checked:` command again if a value in it changed. Write the values into the line.
+Then correct each decision that the result changes. Run `plan_check.py`.
 
 ## 6. Hand off
 
@@ -150,12 +163,16 @@ context. The owner's start of that session is the "go". Your session then ends.
   `session_id: "self"`; in the CLI, `/rename`.
 - For a broad search, use the `Agent` tool with `subagent_type: "Explore"`,
   `model: "haiku"` or `model: "sonnet"`, and `run_in_background: true`.
+- For a data analysis, use `subagent_type: "general-purpose"` and `model: "sonnet"`.
+- `plan_check.py` (section 5): run `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/plan_check.py"`
+  with the plan path. It prints each `Checked:` block that names no command and no
+  file:line.
 - The hand-off: in the Claude desktop app, propose a new session as a card. Use
   `start_session` with `initiation: "own_initiative"`, `context: "fresh"`,
   `title: <branch name>`, `prompt: "/builder <full plan path>"`, `background` (the goal
-  of the plan and its full path, at least 80 characters), `use_worktree: true` and
-  `branch_name: <branch name>`. The app adds a prefix and a suffix to the branch name.
-  The builder creates the plan's branch in that worktree. The owner's click starts the
+  of the plan and its full path, at least 80 characters) and `use_worktree: true`. Do not
+  pass `branch_name`, because a card drops it. The app names the worktree branch when the
+  session starts. The builder creates the plan's branch in that worktree. The owner's click starts the
   session. The builder then moves itself to top level, so its reports do not come back
   to your session. Its close-out archives your session with its own. In the CLI, tell the owner to start a new session and run
   `/builder <full plan path>`.
