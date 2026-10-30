@@ -31,6 +31,7 @@ import sys
 
 LARGEST_RESULTS = 5
 HINT_LENGTH = 60
+OWNER_TEXT_LENGTH = 300
 
 
 def context_of(usage):
@@ -90,6 +91,14 @@ def input_hint(tool_input):
     return ""
 
 
+def content_text(content):
+    """Return the text of a message's content: a string or a list of blocks."""
+    if isinstance(content, list):
+        return " ".join(block.get("text", "") for block in content
+                        if isinstance(block, dict))
+    return content if isinstance(content, str) else ""
+
+
 def is_owner_message(entry):
     """Return True for a message that the owner typed."""
     if entry.get("type") != "user" or entry.get("isSidechain") or entry.get("isMeta"):
@@ -99,13 +108,10 @@ def is_owner_message(entry):
     if (entry.get("origin") or {}).get("kind") == "human":
         return True
     content = entry.get("message", {}).get("content")
-    if isinstance(content, list):
-        if any(block.get("type") == "tool_result" for block in content
-               if isinstance(block, dict)):
-            return False
-        content = " ".join(block.get("text", "") for block in content
-                           if isinstance(block, dict))
-    return isinstance(content, str) and not content.lstrip().startswith("<")
+    if isinstance(content, list) and any(block.get("type") == "tool_result"
+                                         for block in content if isinstance(block, dict)):
+        return False
+    return isinstance(content, (str, list)) and not content_text(content).lstrip().startswith("<")
 
 
 class Chain:
@@ -169,7 +175,7 @@ def digest_session(projects_dir, session_id, target):
     main = Chain()
     title = None
     versions = []
-    owner_messages = 0
+    owner_messages = []
     compactions = 0
     api_errors = 0
     results = []
@@ -191,9 +197,10 @@ def digest_session(projects_dir, session_id, target):
                         and block["name"] == "SendMessage"):
                     messages_to[block.get("input", {}).get("to")] += 1
         elif kind == "user":
-            if is_owner_message(entry):
-                owner_messages += 1
             content = entry.get("message", {}).get("content")
+            if is_owner_message(entry):
+                text = " ".join(content_text(content).split())
+                owner_messages.append(text[:OWNER_TEXT_LENGTH])
             if isinstance(content, list):
                 for block in content:
                     if isinstance(block, dict) and block.get("type") == "tool_result":
@@ -211,7 +218,7 @@ def digest_session(projects_dir, session_id, target):
         lines.append(f"  ({len(copies)} copies; the digest uses the largest)")
     lines.append(f"- Versions: {', '.join(versions) or 'unknown'}")
     lines.append(f"- Time: {main.first_time} to {main.last_time}")
-    lines.append(f"- Owner messages: {owner_messages}. Requests: {len(main.contexts)}. "
+    lines.append(f"- Owner messages: {len(owner_messages)}. Requests: {len(main.contexts)}. "
                  f"Compactions: {compactions}. API errors: {api_errors}.")
     if main.contexts:
         lines.append(f"- Context: first {kilo(main.contexts[0])}, "
@@ -228,6 +235,12 @@ def digest_session(projects_dir, session_id, target):
             name, tool_input = main.calls.get(tool_use_id, ("?", {}))
             hint = input_hint(tool_input)
             lines.append(f"  - {length} {name}" + (f": `{hint}`" if hint else ""))
+
+    if owner_messages:
+        lines.append("")
+        lines.append("### Owner messages")
+        lines.append("")
+        lines.extend(f"- {text}" for text in owner_messages)
 
     folder = os.path.join(os.path.splitext(path)[0], "subagents")
     agents = []

@@ -41,7 +41,8 @@ Report, in this order:
 You propose changes to the agent's environment, so that later sessions do better.
 
 1. Read the session digest of the plan's sessions. The `Sessions:` line of the plan gives
-   the session IDs. Do not read the raw transcripts.
+   the session IDs. Do not read the raw transcripts. Compare the owner messages with the
+   work. Name each request that the work does not meet.
 2. Look for candidates in these categories:
    - **Navigation**: a session took long to find a file or a fact. A pointer in the
      project instructions or a rule file can help.
