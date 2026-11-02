@@ -49,6 +49,8 @@ apply the rules below to it.
 - A large source file and edits of another kind (web, docs, rule files) are two stages.
 - A full read of a file of more than about 800 lines costs a large share of the sizing
   target. If two tasks each change such a file, consider them as two stages.
+- When a stage changes two drivers of one kind, make the simple driver its own stage.
+  The next stage copies its pattern to the hard driver.
 - Count each rule file and doc that a stage reads or updates in its size. When a stage
   that changes behavior also updates more than about three rule files or docs, or
   changes code in more than two languages, put the doc updates in a following stage at

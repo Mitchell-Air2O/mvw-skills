@@ -100,6 +100,12 @@ files and the memory. A grep for the renamed files alone is not enough. A doc ca
 the same rule in other words. The verify step also greps for the subject of the rule
 (the part, the function or the file, with its verb), and the builder reads each hit.
 
+When a decision changes how a signal reaches a consumer (its rate, its type or its
+filter), treat this as a change to a rule that the docs state. Add the rule file and the
+doc of each consumer to the docs task. Add each doc that the project's review checklist
+names for the module. The verify step greps for the words that describe the old
+behavior, not only for the old names.
+
 When the grill finds a hardware fact or a test result that a later session needs, add a
 task that saves it by the project's memory rules.
 
