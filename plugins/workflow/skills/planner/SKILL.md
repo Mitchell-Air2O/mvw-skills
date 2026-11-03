@@ -42,6 +42,8 @@ settled. Ask the full frontier in one round. Then wait for the answers.
 - Number each question. The owner answers by number.
 - Give each question your recommended answer, marked `(rec)`. Word the question so that
   "yes" accepts the recommended answer.
+- Restate each finding, proposal and decision that a question names, by "Finding
+  categories" in the `reviewer` skill.
 - "rec" from the owner accepts the recommended answer. "rec" alone accepts every
   recommended answer of the round.
 - A question that depends on another open question of the round goes in a later round.

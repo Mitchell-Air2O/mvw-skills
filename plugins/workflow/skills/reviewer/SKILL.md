@@ -29,9 +29,16 @@ IDs are unique within a plan. Numbering continues across the reviews of one plan
 review gives D1 to D3, and the work review after it starts at D4. A review that has no
 plan starts each category at 1.
 
-Open questions to the owner keep plain numbers: "1. **D4 and R2**: fix on this branch?".
-A plan, a report and a question name a decision as "Decision N" in full, never "D" with a
-number, because D# names a defect.
+Open questions to the owner keep plain numbers: "1. **D4**, the raw value stays set after a
+timeout (`Sensor.cpp:785`): fix on this branch?". A plan, a report and a question name a
+decision as "Decision N" in full, never "D" with a number, because D# names a defect.
+
+A message to the owner restates each finding, proposal and decision that it names: the ID,
+one sentence on what it says, and `file:line` where it has one. This applies to each
+message, also to a later message about the same item. Never send an ID alone. The plan
+holds each item in full: the findings and the proposals under `## Review results`, the
+decisions under `## Decisions`. A message that names more than three items also gives the
+plan path and the section.
 
 ## 1. Review
 
