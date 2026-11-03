@@ -34,9 +34,11 @@ If the brief is unclear, or the change needs a decision that the brief does not 
 stop. Report the question. Do not guess.
 
 Report:
-- each file that you changed, with one line on the change;
-- the build result, with the figures that the brief asks for;
-- the work left, if you stop before the stage is done;
+- the build result: pass or fail, with the errors. Give build figures only when the brief
+  asks for them;
 - the question that stopped you, if one did: the options that you see, and the option
   that you recommend;
-- each problem that you found outside the brief, one line each. Do not fix it.
+- each problem that you found outside the brief, one line each. Do not fix it;
+- the work left, if you stop before the stage is done.
+
+Do not list the files that you changed. The builder reads the diff.

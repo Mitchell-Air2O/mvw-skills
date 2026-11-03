@@ -15,6 +15,8 @@ For each session, the digest gives:
 - the tool calls by tool, and the largest tool results;
 - each owner message, with its time and the plan-file edits since the message
   before it;
+- for a session that starts workers: its context at the request that starts
+  the first worker, and its growth per request after that request;
 - one row per subagent: type, description, model, requests, tool calls,
   context at the first and last request, and the messages that the session
   sent to it.
@@ -22,7 +24,12 @@ For each session, the digest gives:
 Context is the input tokens of one request: input_tokens plus
 cache_read_input_tokens plus cache_creation_input_tokens. context_report.py
 uses the same definition. A worker whose last context is above the
-target is marked "over". The target applies only to workers.
+target is marked "over". The target applies only to workers. The default
+target is 200000 tokens.
+
+The growth per request is the last context minus the context at the first
+worker, divided by the number of requests after the first worker. It shows
+how fast the session fills while it hands work to workers.
 """
 
 import argparse
@@ -47,6 +54,10 @@ def context_of(usage):
 
 def kilo(tokens):
     return f"{round(tokens / 1000)}k"
+
+
+def kilo_tenth(tokens):
+    return f"{tokens / 1000:.1f}k"
 
 
 def read_entries(path):
@@ -141,6 +152,7 @@ class Chain:
         self.models = collections.Counter()
         self.tools = collections.Counter()
         self.calls = {}
+        self.first_worker_request = None
         self.first_time = None
         self.last_time = None
         self._seen = set()
@@ -158,6 +170,9 @@ class Chain:
         for block in message.get("content", []):
             if isinstance(block, dict) and block.get("type") == "tool_use":
                 self.tools[block["name"]] += 1
+                if (block["name"] == "Agent" and self.contexts
+                        and self.first_worker_request is None):
+                    self.first_worker_request = len(self.contexts) - 1
                 self.calls[block["id"]] = (block["name"], block.get("input", {}))
 
     def add_time(self, entry):
@@ -250,6 +265,15 @@ def digest_session(projects_dir, session_id, target):
         lines.append("- Models: " + ", ".join(f"{m} ({n})" for m, n in main.models.most_common()))
     lines.append("- Tool calls: " + (", ".join(f"{t} {n}" for t, n in main.tools.most_common())
                                      or "none"))
+    if main.first_worker_request is not None:
+        at_worker = main.contexts[main.first_worker_request]
+        later = len(main.contexts) - 1 - main.first_worker_request
+        lines.append(f"- Context at the first worker: {kilo(at_worker)} "
+                     f"(request {main.first_worker_request + 1} of {len(main.contexts)})")
+        if later:
+            growth = (main.contexts[-1] - at_worker) / later
+            lines.append(f"- Growth per request after the first worker: "
+                         f"{kilo_tenth(growth)} ({later} requests)")
 
     results.sort(reverse=True)
     if results:
@@ -308,7 +332,7 @@ def main():
     parser.add_argument("session_ids", nargs="+", metavar="SESSION_ID")
     parser.add_argument("--projects-dir",
                         default=os.path.join(os.path.expanduser("~"), ".claude", "projects"))
-    parser.add_argument("--target", type=int, default=100000,
+    parser.add_argument("--target", type=int, default=200000,
                         help="the sizing target for one worker, in tokens")
     args = parser.parse_args()
     if not os.path.isdir(args.projects_dir):

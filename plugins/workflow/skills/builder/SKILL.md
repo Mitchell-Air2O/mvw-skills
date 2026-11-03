@@ -12,10 +12,15 @@ design and the review. The worker makes the edit and the build.
 
 ## 1. Start
 
-1. Read the full plan. Its Decisions section, its tasks and its stage results are the
-   only source of truth. The conversation that made the plan is not.
+1. Read the plan. Its Decisions section, its tasks and its stage results are the only
+   source of truth. The conversation that made the plan is not. If no stage is done, read
+   the full plan. A builder that resumes a plan reads only the Status, the Next step, the
+   Decisions, the Stages and the tasks that are not done. It does not read the text of
+   landed tasks or old stage results. The commits hold that work. When the next step is
+   to write fix tasks, it also reads `## Review results`.
 2. Read the project instructions. Find the build command, the review checklist, the
-   branch rule, the commit rule, the merge procedure and the declined-designs file.
+   branch rule, the commit rule, the merge procedure, the declined-designs file and the
+   open-work file.
 3. Find the plan in the main checkout (the first entry of `git worktree list`). Read and
    update it by its full path there, also from a worktree. Never copy it into a worktree.
 4. Add your session ID and your role to the plan's `Sessions:` line.
@@ -40,7 +45,7 @@ run or one builder edit. If the plan has a `## Stages` section, take it as a pro
 apply the rules below to it.
 
 - Group the tasks that read the same files and rule files. Keep the dependency order.
-- Size each stage so that its worker ends at about 100k tokens of context. Count what the
+- Size each stage so that its worker ends at about 200k tokens of context. Count what the
   worker reads, not what it changes. The target is for sizing. It is not a cutoff.
 - A worker reads more than its read list: it opens the code around each edit, and it
   searches. Estimate each stage at about 27k tokens plus about 2.5 times its read list.
@@ -112,7 +117,8 @@ For each stage:
    and line width). Then read the doc one section at a time, with the code line that each
    claim cites. Do not read the whole doc again after that. For a rename across many
    files, check with a grep for the old term and the new term, not with the full diff.
-6. Fix a small defect yourself, or resume the worker by section 5. Build again.
+6. Fix a small defect yourself, or resume the worker by section 5. Build again. Check
+   the project's size rule yourself. Report to the owner only a breach of it.
 7. Commit by the project's commit rule. Make one commit per stage, and one per part of a
    joined stage that the project's commit rule keeps apart. The body lists the tasks of
    the commit.
@@ -126,8 +132,13 @@ stage as too large.
 
 When you ask the owner a question, use the grill format of the `planner` skill: numbered,
 with a `(rec)` answer. For each option, say what it changes in the plan: the decisions, the
-tasks and the stages. Write each answer into `## Decisions` with the date. Update the
+tasks and the stages. Name a decision as "Decision N" in full, never "D" with a number,
+because D# names a defect. Write each answer into `## Decisions` with the date. Update the
 tasks and the stages that the answer changes before the next worker starts.
+
+Tell the owner only what the owner must decide or do, plus one status line. Do not
+restate the plan, the diff, the stage list or the build figures. The plan holds the
+record.
 
 ## 4. Model and effort
 
@@ -155,9 +166,8 @@ stage one row down.
 
 ## 6. Your own context
 
-You have no token limit. Hand off when your own context passes about 250k tokens, or
-earlier when you judge it too large. In Claude Code, the hook line after each worker gives
-the figure. Then, at a stage boundary:
+You have no token limit. Hand off when your own context passes about 300k tokens. In
+Claude Code, the hook line after each worker gives the figure. Then, at a stage boundary:
 
 1. Update the plan's `**Next step:**`, so that a new session can resume from the plan
    file alone.
@@ -173,11 +183,28 @@ and offer a new one.
 
 After the last stage:
 
-1. Run the reviewer on all the work of the plan (see the `reviewer` skill). Give the
-   owner its report.
-2. Apply the retro picks that the owner makes, by the `reviewer` skill. If the review
-   adds stages, apply the picks after those stages land, not while a worker runs.
-3. Ask the close-out question of the `reviewer` skill.
+1. Run the reviewer on all the work of the plan (see the `reviewer` skill). Check each
+   D# and R# of its report with a tool. Drop or correct a finding that the check
+   disproves, and say so.
+2. Write the report into the plan under `## Review results`, with the text of each P#
+   in full.
+3. Show the owner the report. The owner answers by ID: fix, defer or drop. The owner
+   picks the P#s.
+4. Write each answer into the plan with the date. A deferred finding becomes an F#. Add
+   each F# to the project's open-work file.
+5. If the owner picked a fix, hand off to a fresh builder by section 6. The new builder
+   does these steps:
+   1. It writes the fix tasks. Each fix task takes the next free task number of the
+      plan and a title that says what it does. It states the finding in full: what is
+      wrong, `file:line` and the fix. A worker can act on it without the review
+      section. One line `Source: D4` traces it to its finding.
+   2. It groups the fix tasks into stages by section 2, and makes them.
+   3. It applies the P# picks by the `reviewer` skill.
+   4. It asks the close-out question of the `reviewer` skill.
+
+   If the owner picked no fix, apply the P# picks and ask the close-out question
+   yourself.
+6. Run no second full review. Review each fix diff as for any stage.
 
 On yes, do these steps in order. Stop at the first step that fails, and report it.
 

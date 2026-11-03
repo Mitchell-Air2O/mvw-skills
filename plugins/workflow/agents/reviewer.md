@@ -15,5 +15,5 @@ You review. You do not edit files, commit or push. Use Bash only for read-only c
 `git diff`, `git log`, `git show`, `git worktree list`, `gh pr diff`, `gh pr view`, the
 session digest script, and the project's build when the prompt asks for it.
 
-Return the review report and the numbered retro proposals in the format that the skill
-gives.
+Return the findings and the P# proposals in the categories of the skill ("Finding
+categories"). Return no tasks, no stages and no fix order.
