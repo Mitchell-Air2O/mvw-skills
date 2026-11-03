@@ -19,8 +19,8 @@ The long form `/workflow:planner` applies only when another command has the shor
 
 The skills read the project values from the project instructions (`AGENTS.md`,
 `CLAUDE.md`): the build command, the review checklist, the plan folder, the memory
-folder, the declined-designs file, the retro queue, the branch rule and the merge
-procedure.
+folder, the declined-designs file, the retro queue, the open-work file, the branch rule
+and the merge procedure.
 
 ## Install
 

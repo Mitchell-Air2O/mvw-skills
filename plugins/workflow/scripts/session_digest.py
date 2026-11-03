@@ -27,9 +27,12 @@ uses the same definition. A worker whose last context is above the
 target is marked "over". The target applies only to workers. The default
 target is 200000 tokens.
 
-The growth per request is the last context minus the context at the first
-worker, divided by the number of requests after the first worker. It shows
-how fast the session fills while it hands work to workers.
+The first worker is the first Agent call whose subagent_type ends in
+"worker". The growth per request is the last context minus the context at
+the first worker, divided by the number of requests after the first worker.
+A compaction after the first worker ends the measure at the request before
+it. The growth shows how fast the session fills while it hands work to
+workers.
 """
 
 import argparse
@@ -170,7 +173,9 @@ class Chain:
         for block in message.get("content", []):
             if isinstance(block, dict) and block.get("type") == "tool_use":
                 self.tools[block["name"]] += 1
+                tool_input = block.get("input", {})
                 if (block["name"] == "Agent" and self.contexts
+                        and tool_input.get("subagent_type", "").endswith("worker")
                         and self.first_worker_request is None):
                     self.first_worker_request = len(self.contexts) - 1
                 self.calls[block["id"]] = (block["name"], block.get("input", {}))
@@ -212,6 +217,7 @@ def digest_session(projects_dir, session_id, target):
     owner_messages = []
     plan_edits = 0
     compactions = 0
+    growth_end = None
     api_errors = 0
     results = []
     messages_to = collections.Counter()
@@ -247,6 +253,8 @@ def digest_session(projects_dir, session_id, target):
         elif kind == "system":
             if entry.get("subtype") == "compact_boundary":
                 compactions += 1
+                if main.first_worker_request is not None and growth_end is None:
+                    growth_end = len(main.contexts) - 1
             elif entry.get("subtype") == "api_error":
                 api_errors += 1
 
@@ -267,13 +275,15 @@ def digest_session(projects_dir, session_id, target):
                                      or "none"))
     if main.first_worker_request is not None:
         at_worker = main.contexts[main.first_worker_request]
-        later = len(main.contexts) - 1 - main.first_worker_request
+        end = len(main.contexts) - 1 if growth_end is None else growth_end
+        later = end - main.first_worker_request
         lines.append(f"- Context at the first worker: {kilo(at_worker)} "
                      f"(request {main.first_worker_request + 1} of {len(main.contexts)})")
-        if later:
-            growth = (main.contexts[-1] - at_worker) / later
+        if later > 0:
+            growth = (main.contexts[end] - at_worker) / later
+            note = "" if growth_end is None else ", up to the first compaction"
             lines.append(f"- Growth per request after the first worker: "
-                         f"{kilo_tenth(growth)} ({later} requests)")
+                         f"{kilo_tenth(growth)} ({later} requests{note})")
 
     results.sort(reverse=True)
     if results:

@@ -47,7 +47,11 @@ number, because D# names a defect.
    one time. For a rename across many files, check with a grep for the old term and the
    new term, not with the full diff.
 4. Read each changed file around each change. Verify each finding with a tool before you
-   report it. Label a finding that you cannot verify as an assumption.
+   report it. Label a finding that you cannot verify as an assumption. When the work
+   changes a procedure in a skill or an agent file, walk each entry into the procedure: a
+   fresh session, a session that resumes after a hand-off, and a session after a review.
+   Check that each entry reaches the right step and reads each section that the step
+   needs.
 
 The report holds findings only. It has no tasks, no stages and no fix order. List the
 findings by category, in this order: defects (D#), contract risks (R#), cosmetic items
@@ -103,7 +107,8 @@ there. Apply only the text that the owner saw.
 The owner picks by ID:
 
 - D#, R# and C#: fix, defer or drop. A fix becomes a fix task of the plan. A deferred
-  finding becomes an F#.
+  finding becomes an F#: it takes the next free F number of the plan, and the entry names
+  its old ID ("F3 (was D4)").
 - P#: pick or defer.
 - F#: no pick. Each F# goes to the project's open-work file. If the project has no
   open-work file, report the F# to the owner.

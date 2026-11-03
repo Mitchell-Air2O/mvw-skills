@@ -12,12 +12,12 @@ design and the review. The worker makes the edit and the build.
 
 ## 1. Start
 
-1. Read the plan. Its Decisions section, its tasks and its stage results are the only
-   source of truth. The conversation that made the plan is not. If no stage is done, read
-   the full plan. A builder that resumes a plan reads only the Status, the Next step, the
-   Decisions, the Stages and the tasks that are not done. It does not read the text of
-   landed tasks or old stage results. The commits hold that work. When the next step is
-   to write fix tasks, it also reads `## Review results`.
+1. Read the plan. Its Decisions section and its tasks are the only source of truth. The
+   conversation that made the plan is not. If no stage is done, read the full plan. A
+   builder that resumes a plan reads only the Status, the Next step, the Decisions, the
+   Stages and the tasks that are not done. It does not read the text of landed tasks or
+   old stage results. The commits hold that work. It also reads each section that its
+   next step names, for example `## Review results` or `## Rejected alternatives`.
 2. Read the project instructions. Find the build command, the review checklist, the
    branch rule, the commit rule, the merge procedure, the declined-designs file and the
    open-work file.
@@ -51,6 +51,9 @@ apply the rules below to it.
   searches. Estimate each stage at about 27k tokens plus about 2.5 times its read list.
 - Join two stages when together they fit the target. A worker starts at about 25k
   tokens, so two small stages cost less as one. Keep the other rules of this list.
+- Do not split stages only to run their workers at the same time. Parallel workers save
+  time, not tokens. Run two workers at the same time only when neither stage depends on
+  the other and the two stages together do not fit the target.
 - A large source file and edits of another kind (web, docs, rule files) are two stages.
 - A full read of a file of more than about 800 lines costs a large share of the sizing
   target. If two tasks each change such a file, consider them as two stages.
@@ -62,7 +65,8 @@ apply the rules below to it.
   row 1 of the table. That stage reads the landed diff.
 - Make a task yourself only when the edit is a few lines in one file. Send a prose edit
   across several files to a worker at row 1 of the table. The brief names the plan's
-  decisions. It does not copy their text.
+  decisions. It does not copy their text. Use row 2 when the prose rewrites a procedure
+  whose steps must agree across files.
 - Pick the model and the effort of each worker stage from the table (section 4). Pick the
   lowest row that the stage needs. A joined stage takes the row of its harder part.
 
@@ -183,15 +187,19 @@ and offer a new one.
 
 After the last stage:
 
-1. Run the reviewer on all the work of the plan (see the `reviewer` skill). Check each
-   D# and R# of its report with a tool. Drop or correct a finding that the check
-   disproves, and say so.
+1. If the plan has no `## Review results`, run the reviewer on all the work of the plan
+   (see the `reviewer` skill). Check each D# and R# of its report with a tool. Drop or
+   correct a finding that the check disproves, and say so. If the plan has review
+   results, the review is done. Continue at the first sub-step of step 5 that is not
+   done.
 2. Write the report into the plan under `## Review results`, with the text of each P#
    in full.
 3. Show the owner the report. The owner answers by ID: fix, defer or drop. The owner
    picks the P#s.
-4. Write each answer into the plan with the date. A deferred finding becomes an F#. Add
-   each F# to the project's open-work file.
+4. Write each answer into the plan with the date. A deferred finding becomes an F#: it
+   takes the next free F number of the plan, and the entry names its old ID ("F3 (was
+   D4)"). Add each F# to the project's open-work file, and commit it on the plan's
+   branch. If the project has no open-work file, report each F# to the owner.
 5. If the owner picked a fix, hand off to a fresh builder by section 6. The new builder
    does these steps:
    1. It writes the fix tasks. Each fix task takes the next free task number of the
