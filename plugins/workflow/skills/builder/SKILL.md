@@ -52,9 +52,14 @@ apply the rules below to it.
 
 - Group the tasks that read the same files and rule files. Keep the dependency order.
 - Size each stage so that its worker ends at about 200k tokens of context. Count what the
-  worker reads, not what it changes. The target is for sizing. It is not a cutoff.
+  worker reads and the new code that it writes. A small edit to code that exists counts
+  as read only. The target is for sizing. It is not a cutoff.
 - A worker reads more than its read list: it opens the code around each edit, and it
-  searches. Estimate each stage at about 27k tokens plus about 2.5 times its read list.
+  searches. It also reads back the new code that it writes, and works through its build
+  errors. Estimate each stage at about 27k tokens plus about 2.5 times its read list and
+  its new code.
+- Put the engine of a new subsystem and its code generator in separate stages. Each one
+  writes much new code, and the generator stage reads the landed engine.
 - Join two stages when together they fit the target. A worker starts at about 25k
   tokens, so two small stages cost less as one. Keep the other rules of this list.
 - Do not split stages only to run their workers at the same time. Parallel workers save

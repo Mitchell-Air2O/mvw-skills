@@ -151,6 +151,10 @@ The plan has these parts, in this order:
 7. `## Tasks`: each task, numbered, with the items of section 3. The builder adds a
    `## Stages` section before its first worker.
 
+Put each logic flow of the plan into the plan file as a Mermaid flowchart. Draw no
+diagram in the chat unless the owner asks for one. A flow in a chat reply is a plain-text
+diagram.
+
 List the open decisions first, in one block, and stop. The owner answers them. Then
 write the plan. The owner can correct the written plan. Write each correction into the
 plan at once, so that a compaction does not lose it. Before you ask for approval, run
