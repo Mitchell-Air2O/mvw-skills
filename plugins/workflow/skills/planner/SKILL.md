@@ -98,9 +98,10 @@ Each task names:
 Each verify step names a command and an output that exists after the task lands. When a
 decision changes a rule that the docs state, the verify step greps for the old wording
 in every file that states the rule: the framework, the project instructions, the rule
-files and the memory. A grep for the renamed files alone is not enough. A doc can state
-the same rule in other words. The verify step also greps for the subject of the rule
-(the part, the function or the file, with its verb), and the builder reads each hit.
+files, the memory and the code comments. Grep the headers first. A grep for the renamed
+files alone is not enough. A doc can state the same rule in other words. The verify step
+also greps for the subject of the rule (the part, the function or the file, with its
+verb), and the builder reads each hit.
 
 When a decision changes how a signal reaches a consumer (its rate, its type or its
 filter), treat this as a change to a rule that the docs state. Add the rule file and the
@@ -139,9 +140,12 @@ The plan has these parts, in this order:
    builder treats this section as the only source of truth. A decision that rests on a
    fact about the code or a tool (an API is safe in an interrupt, a function is inline, a
    call is thread-safe) has a `Checked:` line with the command and its result, or an
-   `Assumption:` line. When a decision changes the value that a function returns, grep the
-   callers of that function and name each caller in the `Checked:` line. A caller that
-   feeds a second actuator, guard or module is a consumer that the decision must cover.
+   `Assumption:` line. When a decision divides by a value or compares with it, read the
+   value in each revision's configuration. Write the range of values in the `Checked:`
+   line. Give a value of 0 its own case. When a decision changes the value that a function
+   returns, grep the callers of that function and name each caller in the `Checked:`
+   line. A caller that feeds a second actuator, guard or module is a consumer that the
+   decision must cover.
 5. `## Rejected alternatives`: each alternative and the reason.
 6. `## Sessions`: a line `Sessions:` with your session ID and your role.
 7. `## Tasks`: each task, numbered, with the items of section 3. The builder adds a

@@ -18,25 +18,31 @@ design and the review. The worker makes the edit and the build.
    Stages and the tasks that are not done. It does not read the text of landed tasks or
    old stage results. The commits hold that work. It also reads each section that its
    next step names, for example `## Review results` or `## Rejected alternatives`.
-2. Read the project instructions. Find the build command, the review checklist, the
+2. If the plan names a base branch or a commit that moved after the plan was written,
+   run each `Checked:` command and each `Assumption:` line again on the new base. Write
+   the results into the plan before you group the stages.
+3. If the plan has a review results section, find each plan defect and each open
+   question in it. Check that a decision answers each one. If one has no answer, ask
+   the owner before you group the stages.
+4. Read the project instructions. Find the build command, the review checklist, the
    branch rule, the commit rule, the merge procedure, the declined-designs file and the
    open-work file.
-3. Find the plan in the main checkout (the first entry of `git worktree list`). Read and
+5. Find the plan in the main checkout (the first entry of `git worktree list`). Read and
    update it by its full path there, also from a worktree. Never copy it into a worktree.
-4. Add your session ID and your role to the plan's `Sessions:` line.
-5. Set your session title to the branch name in the plan's Status line. In a tool that
+6. Add your session ID and your role to the plan's `Sessions:` line.
+7. Set your session title to the branch name in the plan's Status line. In a tool that
    cannot rename a session, skip this step.
-6. Work on that branch. If neither the branch nor a worktree exists, create them by the
+8. Work on that branch. If neither the branch nor a worktree exists, create them by the
    project's branch rule. If your session already has a worktree on another branch (a
    tool can name the worktree and its branch), create the plan's branch in that worktree
    by the project's branch rule. Then delete the other branch if it holds no commits of
    its own. The worktree folder name can differ from the branch name.
-7. Check the tool version. Then update the `workflow` plugin by the planner's update
+9. Check the tool version. Then update the `workflow` plugin by the planner's update
    step. If the version changed, read the builder skill of the new version and follow it
    from section 1. See "In Claude Code".
-8. If another session started yours (the planner's card or a builder's hand-off card),
-   move your session to top level. The owner then talks to you alone, and the session
-   that started yours gets no report of your turns. See "In Claude Code".
+10. If another session started yours (the planner's card or a builder's hand-off
+    card), move your session to top level. The owner then talks to you alone, and the
+    session that started yours gets no report of your turns. See "In Claude Code".
 
 ## 2. Group the tasks into stages
 
@@ -59,10 +65,12 @@ apply the rules below to it.
   target. If two tasks each change such a file, consider them as two stages.
 - When a stage changes two drivers of one kind, make the simple driver its own stage.
   The next stage copies its pattern to the hard driver.
-- Count each rule file and doc that a stage reads or updates in its size. When a stage
-  that changes behavior also updates more than about three rule files or docs, or
-  changes code in more than two languages, put the doc updates in a following stage at
-  row 1 of the table. That stage reads the landed diff.
+- Count each rule file and doc that a stage reads or updates in its size. Count also each
+  rule file that loads when the worker reads a file, by the `paths:` of that rule file. A
+  read of a rule file can load other rule files. When a stage that changes behavior also
+  updates more than about three rule files or docs, or changes code in more than two
+  languages, put the doc updates in a following stage at row 1 of the table. That stage
+  reads the landed diff.
 - Make a task yourself only when the edit is a few lines in one file. Send a prose edit
   across several files to a worker at row 1 of the table. The brief names the plan's
   decisions. It does not copy their text. Use row 2 when the prose rewrites a procedure
@@ -95,6 +103,9 @@ For each stage:
    - the helpers to reuse or to add;
    - what done looks like;
    - the build to run;
+   - each contract risk and each plan defect in the plan's review results that names a
+     file or a decision of the stage. Copy its text. The worker answers each one in its
+     report;
    - for a stage that writes docs or rule files: the project's logic-flow rule, and the
      instruction to give in the report the code line behind each new claim of behavior.
 
@@ -127,8 +138,10 @@ For each stage:
    joined stage that the project's commit rule keeps apart. The body lists the tasks of
    the commit.
 8. Mark the stage done in the plan with the date, the commit and the worker's token
-   count. Write the new `**Next step:**`. When a stage lands, delete the builder notes
-   for that stage. The commit and the stage result hold what stays.
+   count. Write the new `**Next step:**`. When a stage lands, cut its notes to the facts
+   that a later stage, the reviewer or the owner needs, one line each. Delete the other
+   notes. Write in the stage notes how the stage answered each review item of its brief.
+   Ask the owner about an item that the stage did not answer.
 
 A stage overruns when its worker ends far above the sizing target. Finish the stage
 with a fresh worker. Write the overrun in the plan, so that the retro reports the
@@ -268,7 +281,7 @@ On yes, do these steps in order. Stop at the first step that fails, and report i
   `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/context_report.py" --session ${CLAUDE_SESSION_ID} --agent <agent ID>`.
   It prints the same line. The `Agent` tool result gives the agent ID.
 - Resume a worker with `SendMessage` to its agent ID. Stop one with `TaskStop`.
-- Top level (section 1, step 8): in the Claude desktop app, the planner's card and a
+- Top level (section 1, step 10): in the Claude desktop app, the planner's card and a
   builder's hand-off card start the new builder as a side session of the session that
   proposed it. Call `detach_session` with `session_id: "self"`. The sidebar then shows the
   builder at top level, and the app no longer sends its reports to the session that
@@ -280,7 +293,7 @@ On yes, do these steps in order. Stop at the first step that fails, and report i
   of the plan, its full path and the stage to resume, at least 80 characters) and
   `use_worktree: true`. Do not pass `branch_name`, because a card drops it. The app names
   the worktree branch when the session starts. The new builder creates the plan's branch
-  by section 1. The new builder detaches by section 1, step 8. In the CLI, tell the owner to start a new
+  by section 1. The new builder detaches by section 1, step 10. In the CLI, tell the owner to start a new
   session and run `/builder <full plan path>`.
 - Archive a session with `archive_session` in the Claude desktop app. It also removes the
   session's worktree, so close-out step 4 does not remove it. The CLI has no such step;
