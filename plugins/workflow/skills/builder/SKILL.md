@@ -112,7 +112,10 @@ For each stage:
      file or a decision of the stage. Copy its text. The worker answers each one in its
      report;
    - for a stage that writes docs or rule files: the project's logic-flow rule, and the
-     instruction to give in the report the code line behind each new claim of behavior.
+     instruction to give in the report the code line behind each new claim of behavior;
+   - for a stage that checks driver logic with a Python copy: for each case,
+     name the hardware action that gives it, and the path in the driver that turns the
+     action into the input of the case.
 
    When a file that the stage reads has more than about 800 lines, the brief names the
    functions and the line ranges to read. It tells the worker not to read the file in
@@ -223,10 +226,13 @@ After the last stage:
    1. It writes the fix tasks. Each fix task takes the next free task number of the
       plan and a title that says what it does. It states the finding in full: what is
       wrong, `file:line` and the fix. A worker can act on it without the review
-      section. One line `Source: D4` traces it to its finding.
+      section. One line `Source: D4` traces it to its finding. When a fix task comes
+      from an owner message, quote the words of the owner in its Source line.
    2. It groups the fix tasks into stages by section 2, and makes them.
    3. It applies the P# picks by the `reviewer` skill.
-   4. It asks the close-out question of the `reviewer` skill.
+   4. When a stage finds that the work meets the request in only some cases, it asks
+      the owner before the close-out question.
+   5. It asks the close-out question of the `reviewer` skill.
 
    If the owner picked no fix, apply the P# picks and ask the close-out question
    yourself.
