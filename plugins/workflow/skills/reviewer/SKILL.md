@@ -126,6 +126,8 @@ Apply each P# pick:
   branch.
 - A framework pick: commit and push it to `mvw-skills`. Then update the installed plugin
   by the planner's update step, so that the next session of the plan loads the pick.
+  Read the `version` of `workflow@mvw-skills` in `~/.claude/plugins/installed_plugins.json`
+  and write it into the plan. If it is not the version that you pushed, tell the owner.
 - A pick for the owner's global instructions: edit the file in place.
 
 A P# that the owner defers goes into the project's retro queue, under the plan's heading,

@@ -115,7 +115,12 @@ For each stage:
      instruction to give in the report the code line behind each new claim of behavior;
    - for a stage that checks driver logic with a Python copy: for each case,
      name the hardware action that gives it, and the path in the driver that turns the
-     action into the input of the case.
+     action into the input of the case;
+   - for a stage that adds or changes a bench step: the project's bench-step rule from
+     its review checklist, copied. The worker reports the trace of each step;
+   - for a stage that reads the data of a run on hardware: the instruction to list each
+     WARN and ERROR line of the run's log in the time span that the stage uses, one line
+     each. You show the list to the owner.
 
    When a file that the stage reads has more than about 800 lines, the brief names the
    functions and the line ranges to read. It tells the worker not to read the file in

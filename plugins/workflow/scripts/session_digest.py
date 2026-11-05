@@ -11,10 +11,12 @@ the largest copy.
 
 For each session, the digest gives:
 - the counts: owner messages, requests, compactions, API errors;
+- the transcript entries before the first request, by kind and size, which
+  show what fills the first context;
 - the session's context at its first, largest and last request;
 - the tool calls by tool, and the largest tool results;
-- each owner message, with its time and the plan-file edits since the message
-  before it;
+- each owner message, a message queued while the agent worked included, with
+  its time and the plan-file edits since the message before it;
 - for a session that starts workers: its context at the request that starts
   the first worker, and its growth per request after that request;
 - one row per subagent: type, description, model, requests, tool calls,
@@ -43,6 +45,7 @@ import re
 import sys
 
 LARGEST_RESULTS = 5
+FIRST_INPUTS = 8
 HINT_LENGTH = 60
 OWNER_TEXT_LENGTH = 2000
 REMINDER_RE = re.compile(r"<system-reminder>.*?</system-reminder>", re.DOTALL)
@@ -139,6 +142,22 @@ def is_owner_message(entry):
     return isinstance(content, (str, list)) and not content_text(content).lstrip().startswith("<")
 
 
+def is_queued_owner_message(entry):
+    """Return True for a message that the owner typed while the agent worked. The
+    transcript holds it as an attachment, not as a user entry."""
+    attachment = entry.get("attachment") or {}
+    return (attachment.get("type") == "queued_command"
+            and (attachment.get("origin") or {}).get("kind") == "human")
+
+
+def entry_kind(entry):
+    """Return the kind of a transcript entry: its type, and an attachment's own type."""
+    attachment = entry.get("attachment")
+    if isinstance(attachment, dict) and attachment.get("type"):
+        return f"{entry.get('type')}/{attachment['type']}"
+    return str(entry.get("type"))
+
+
 def is_plan_edit(block):
     """Return True for a tool call that changes a plan file."""
     tool_input = block.get("input", {})
@@ -222,12 +241,15 @@ def digest_session(projects_dir, session_id, target):
     results = []
     messages_to = collections.Counter()
 
+    first_inputs = collections.Counter()   # what fills the first request, by entry kind
     for entry in read_entries(path):
         kind = entry.get("type")
         if kind == "custom-title":
             title = entry.get("customTitle", title)
         if entry.get("isSidechain"):
             continue
+        if not main.contexts and kind != "assistant":
+            first_inputs[entry_kind(entry)] += len(json.dumps(entry, ensure_ascii=False))
         main.add_time(entry)
         if entry.get("version") and entry["version"] not in versions:
             versions.append(entry["version"])
@@ -250,6 +272,11 @@ def digest_session(projects_dir, session_id, target):
                     if isinstance(block, dict) and block.get("type") == "tool_result":
                         results.append((text_length(block.get("content")),
                                         block.get("tool_use_id")))
+        elif kind == "attachment" and is_queued_owner_message(entry):
+            text = " ".join(entry["attachment"].get("prompt", "").split())
+            owner_messages.append((entry.get("timestamp", "?"), plan_edits,
+                                   "(queued) " + text[:OWNER_TEXT_LENGTH]))
+            plan_edits = 0
         elif kind == "system":
             if entry.get("subtype") == "compact_boundary":
                 compactions += 1
@@ -269,6 +296,10 @@ def digest_session(projects_dir, session_id, target):
     if main.contexts:
         lines.append(f"- Context: first {kilo(main.contexts[0])}, "
                      f"largest {kilo(max(main.contexts))}, last {kilo(main.contexts[-1])}")
+    if first_inputs:
+        lines.append("- Before the first request (characters of transcript entries, "
+                     "largest first): "
+                     + ", ".join(f"{k} {n}" for k, n in first_inputs.most_common(FIRST_INPUTS)))
     if main.models:
         lines.append("- Models: " + ", ".join(f"{m} ({n})" for m, n in main.models.most_common()))
     lines.append("- Tool calls: " + (", ".join(f"{t} {n}" for t, n in main.tools.most_common())
