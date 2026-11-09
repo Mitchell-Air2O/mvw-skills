@@ -109,6 +109,9 @@ doc of each consumer to the docs task. Add each doc that the project's review ch
 names for the module. The verify step greps for the words that describe the old
 behavior, not only for the old names.
 
+When a plan has a simulation, each "you will see" claim in the Decisions becomes a case
+in it. A claim with no case lets the script pass while the code contradicts the claim.
+
 When the grill finds a hardware fact or a test result that a later session needs, add a
 task that saves it by the project's memory rules.
 

@@ -58,6 +58,9 @@ apply the rules below to it.
   searches. It also reads back the new code that it writes, and works through its build
   errors. Estimate each stage at about 27k tokens plus about 2.5 times its read list and
   its new code.
+- Size a stage by the lines that it reads and rewrites, not by its count of tasks. Count
+  each diff that it reads. A stage that compares code with a model (a simulation, a
+  Python copy) reads the final functions by grep ranges, not the diff.
 - Put the engine of a new subsystem and its code generator in separate stages. Each one
   writes much new code, and the generator stage reads the landed engine.
 - Join two stages when together they fit the target. A worker starts at about 25k
