@@ -109,6 +109,11 @@ doc of each consumer to the docs task. Add each doc that the project's review ch
 names for the module. The verify step greps for the words that describe the old
 behavior, not only for the old names.
 
+When a decision or a task asks for a check in a browser, the plan names how the page is
+served: a project tool, a command or a server entry. A browser may run no scripts on a
+page that it opens from a file, so a step that names only how to build the page leaves
+the builder to improvise a server.
+
 When a plan has a simulation, each "you will see" claim in the Decisions becomes a case
 in it. A claim with no case lets the script pass while the code contradicts the claim.
 
