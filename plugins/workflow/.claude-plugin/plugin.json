@@ -1,6 +1,6 @@
 {
   "name": "workflow",
-  "version": "0.1.26",
+  "version": "0.1.27",
   "description": "Plan, build and review a change: planner, builder, worker and reviewer.",
   "author": {
     "name": "Mitchell Van Wagoner"

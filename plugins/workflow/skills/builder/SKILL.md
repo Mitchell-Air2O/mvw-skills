@@ -61,6 +61,8 @@ apply the rules below to it.
 - Size a stage by the lines that it reads and rewrites, not by its count of tasks. Count
   each diff that it reads. A stage that compares code with a model (a simulation, a
   Python copy) reads the final functions by grep ranges, not the diff.
+- Size a sweep of docs and rule files from the line count of the grep hits, not from the
+  count of files.
 - Put the engine of a new subsystem and its code generator in separate stages. Each one
   writes much new code, and the generator stage reads the landed engine.
 - Join two stages when together they fit the target. A worker starts at about 25k
